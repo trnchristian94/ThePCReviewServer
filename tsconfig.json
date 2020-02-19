@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+        "outDir": "dist",
+        "noImplicitAny": true,
+        "module": "commonjs",
+        "target": "es2015",
+        "jsx": "react",
+        "baseUrl": ".",
+        "resolveJsonModule": true,
+        "esModuleInterop": true,
+        "paths": {
+            "src/*": ["./src/*"],
+            "utils/*": ["./src/utils/*"],
+            "components/*": ["./src/app/components/*"],
+            "userLogic/*": ["./src/userLogic/*"],
+            "db/*": ["./src/db/*"]
+        }
+    },
+    "include": ["./src/app/**/*"]
+}

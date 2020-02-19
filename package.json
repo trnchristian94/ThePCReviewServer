@@ -1,0 +1,19 @@
+{
+  "name": "thepcreview",
+  "version": "1.0.0",
+  "description": "The PC Review",
+  "main": "index.tsx",
+  "scripts": {
+    "dev": "nodemon src/server.tsx",
+    "start": "node src/server.tsx"
+  },
+  "keywords": [],
+  "author": "Christian",
+  "license": "ISC",
+  "dependencies": {
+    "react": "^16.11.0"
+  },
+  "devDependencies": {
+    "@types/node": "^13.7.2"
+  }
+}
