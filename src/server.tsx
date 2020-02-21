@@ -5,8 +5,9 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const passport = require("passport");
 
-const users = require("./db/routes/user.routes.tsx");
-const tasks = require("./db/routes/task.routes.tsx");
+const users = require("./db/routes/user.routes");
+const userList = require("./db/routes/userList.routes");
+const tasks = require("./db/routes/task.routes");
 
 const app = express();
 
@@ -36,6 +37,7 @@ require("./db/config/passport")(passport);
 // Routes
 app.use("/api/tasks", tasks);
 app.use("/api/users", users);
+app.use("/api/userList", userList);
 
 // Static files
 app.use(express.static(path.join(__dirname, "public/")));
