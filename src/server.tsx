@@ -48,7 +48,7 @@ mongoose
   .then(() => console.log("MongoDB successfully connected"))
   .catch(err => console.log(err));
 // Settings
-app.set("port", process.env.PORT || 8080);
+app.set("port", process.env.PORT || 8000);
 app.listen(app.get("port"), () =>
   console.log(`Server up and running on port ${app.get("port")} !`)
 );
