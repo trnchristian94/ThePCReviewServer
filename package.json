@@ -5,12 +5,14 @@
   "main": "index.tsx",
   "scripts": {
     "dev": "nodemon src/server.tsx",
+    "devdeb": "nodemon --inspect src/server.tsx",
     "start": "node src/server.tsx"
   },
   "keywords": [],
   "author": "Christian",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^4.0.0",
     "bcryptjs": "^2.4.3",
     "express": "^4.17.1",
     "is-empty": "^1.2.0",

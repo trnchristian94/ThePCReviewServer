@@ -7,6 +7,7 @@ const passport = require("passport");
 
 const users = require("./db/routes/user.routes");
 const userList = require("./db/routes/userList.routes");
+const userProfile = require("./db/routes/userProfile.routes");
 const tasks = require("./db/routes/task.routes");
 
 const app = express();
@@ -37,7 +38,16 @@ require("./db/config/passport")(passport);
 // Routes
 app.use("/api/tasks", tasks);
 app.use("/api/users", users);
-app.use("/api/userList", userList);
+app.use(
+  "/api/userList",
+  passport.authenticate("jwt", { session: false }),
+  userList
+);
+app.use(
+  "/api/userProfile",
+  passport.authenticate("jwt", { session: false }),
+  userProfile
+);
 
 // Static files
 app.use(express.static(path.join(__dirname, "public/")));
