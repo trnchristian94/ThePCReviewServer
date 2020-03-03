@@ -9,6 +9,11 @@ const users = require("./db/routes/user.routes");
 const userList = require("./db/routes/userList.routes");
 const userProfile = require("./db/routes/userProfile.routes");
 const tasks = require("./db/routes/task.routes");
+const images = require("./db/routes/image.routes");
+
+const keys = require("./db/config/keys");
+//IMAGE UPLOAD CONFIGURATION
+
 
 const app = express();
 
@@ -21,9 +26,6 @@ app.use(
   })
 );
 app.use(bodyParser.json());
-
-// DB Config address
-const db = require("./db/config/keys").mongoURI;
 
 // Middlewares
 app.use(morgan("dev"));
@@ -38,6 +40,7 @@ require("./db/config/passport")(passport);
 // Routes
 app.use("/api/tasks", tasks);
 app.use("/api/users", users);
+app.use("/api/images", images);
 app.use(
   "/api/userList",
   passport.authenticate("jwt", { session: false }),
@@ -54,7 +57,10 @@ app.use(express.static(path.join(__dirname, "public/")));
 
 // Connect to MongoDB
 mongoose
-  .connect(db, { useUnifiedTopology: true, useNewUrlParser: true })
+  .connect(process.env.mongoURI || keys.mongoURI, {
+    useUnifiedTopology: true,
+    useNewUrlParser: true
+  })
   .then(() => console.log("MongoDB successfully connected"))
   .catch(err => console.log(err));
 // Settings
