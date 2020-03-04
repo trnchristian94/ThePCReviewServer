@@ -1,27 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const Image = require("../models/Image.tsx");
-const keys = require("../config/keys");
-const multer = require("multer");
-const storage = multer.diskStorage({
-  filename: function(req, file, callback) {
-    callback(null, Date.now() + file.originalname);
-  }
-});
-const cloudinary = require("cloudinary");
-cloudinary.config({
-  cloud_name: "dz6ogknjd",
-  api_key: process.env.CLOUDINARY_API_KEY || keys.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET || keys.CLOUDINARY_API_SECRET
-});
-const imageFilter = function(req, file, cb) {
-  // accept image files only
-  if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/i)) {
-    return cb(new Error("Only image files are accepted!"), false);
-  }
-  cb(null, true);
-};
-const upload = multer({ storage: storage, fileFilter: imageFilter });
+const imageUtils = require("../../utils/imageUtils");
+
 router.get("/", (req, res) => {
   Image.find((err, images) => {
     if (err) {
@@ -32,8 +13,8 @@ router.get("/", (req, res) => {
   });
 });
 
-router.post("/", upload.single("image"), (req, res) => {
-  cloudinary.v2.uploader.upload(req.file.path, (err, result) => {
+router.post("/", imageUtils.upload.single("image"), (req, res) => {
+  imageUtils.cloudinary.v2.uploader.upload(req.file.path, (err, result) => {
     if (err) {
       req.json(err.message);
     }

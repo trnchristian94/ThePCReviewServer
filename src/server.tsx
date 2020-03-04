@@ -12,8 +12,6 @@ const tasks = require("./db/routes/task.routes");
 const images = require("./db/routes/image.routes");
 
 const keys = require("./db/config/keys");
-//IMAGE UPLOAD CONFIGURATION
-
 
 const app = express();
 
