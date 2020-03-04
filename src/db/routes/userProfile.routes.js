@@ -31,7 +31,7 @@ router.put("/updateUser/:id", async (req, res) => {
 });
 
 router.post("/uploadImage/", imageUtils.upload.single("image"), (req, res) => {
-  if (req.params.id !== req.user.id) {
+  if (req.body.userId !== req.user.id) {
     return res.status(400).send({
       message: "User not allowed"
     });

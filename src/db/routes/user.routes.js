@@ -13,7 +13,6 @@ const User = require("../models/User.tsx");
 // @desc Register user
 // @access Public
 router.post("/register", async (req, res) => {
-  console.log(req.body);
   // Form validation
   const { errors, isValid } = validateRegisterInput(req.body);
   // Check validation
