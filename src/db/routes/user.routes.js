@@ -7,7 +7,7 @@ const keys = require("../config/keys");
 const validateRegisterInput = require("../../userLogic/validation/register");
 const validateLoginInput = require("../../userLogic/validation/login");
 // Load User model
-const User = require("../models/User.tsx");
+const User = require("../models/User");
 
 // @route POST api/users/register
 // @desc Register user

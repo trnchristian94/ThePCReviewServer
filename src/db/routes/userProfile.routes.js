@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const User = require("../models/User.tsx");
+const User = require("../models/User");
 const imageUtils = require("../../utils/imageUtils");
 
 router.get("/:id", async (req, res) => {
@@ -38,7 +38,10 @@ router.post("/uploadImage/", imageUtils.upload.single("image"), (req, res) => {
   }
   imageUtils.cloudinary.v2.uploader.upload(
     req.file.path,
-    { folder: "user/avatar/", public_id: req.body.userId },
+    {
+      folder: "user/avatar/",
+      public_id: req.body.userId
+    },
     (err, result) => {
       if (err) {
         req.json(err.message);

@@ -24,6 +24,8 @@ const UserSchema = new Schema({
   userImage: {
     image: String,
     imageId: String
-  }
+  },
+  stalking: [String],
+  stalkers: [String]
 });
 module.exports = User = mongoose.model("users", UserSchema);

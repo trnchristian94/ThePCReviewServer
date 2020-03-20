@@ -4,9 +4,9 @@
   "description": "The PC Review",
   "main": "index.tsx",
   "scripts": {
-    "dev": "nodemon src/server.tsx",
-    "devdeb": "nodemon --inspect src/server.tsx",
-    "start": "node src/server.tsx"
+    "dev": "nodemon src/server",
+    "devdeb": "nodemon --inspect src/server",
+    "start": "node src/server"
   },
   "keywords": [],
   "author": "Christian",

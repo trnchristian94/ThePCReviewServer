@@ -10,6 +10,7 @@ const userList = require("./db/routes/userList.routes");
 const userProfile = require("./db/routes/userProfile.routes");
 const tasks = require("./db/routes/task.routes");
 const images = require("./db/routes/image.routes");
+const friends = require("./db/routes/friends.routes");
 
 const keys = require("./db/config/keys");
 
@@ -49,6 +50,7 @@ app.use(
   passport.authenticate("jwt", { session: false }),
   userProfile
 );
+app.use("/api/friends", friends);
 
 // Static files
 app.use(express.static(path.join(__dirname, "public/")));

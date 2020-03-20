@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const Image = require("../models/Image.tsx");
+const Image = require("../models/Image");
 const imageUtils = require("../../utils/imageUtils");
 
 router.get("/", (req, res) => {
@@ -36,7 +36,7 @@ router.post("/", imageUtils.upload.single("image"), (req, res) => {
 router.delete("/:id", async (req, res) => {
   await Image.findByIdAndRemove(req.params.id);
   const { imageId } = req.body;
-  cloudinary.v2.uploader.destroy(imageId, (err, result) => {
+  imageUtils.cloudinary.v2.uploader.destroy(imageId, (err, result) => {
     if (err) {
       req.json(err.message);
     }
