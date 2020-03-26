@@ -49,7 +49,11 @@ app.use(
   passport.authenticate("jwt", { session: false }),
   userProfile
 );
-app.use("/api/stalks", stalks);
+app.use(
+  "/api/stalks",
+  passport.authenticate("jwt", { session: false }),
+  stalks
+);
 
 // Static files
 app.use(express.static(path.join(__dirname, "public/")));

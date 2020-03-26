@@ -38,7 +38,7 @@ router.delete("/:id", async (req, res) => {
   const { imageId } = req.body;
   imageUtils.cloudinary.v2.uploader.destroy(imageId, (err, result) => {
     if (err) {
-      req.json(err.message);
+      return res.json(err.message);
     }
     res.json({ status: "Image deleted" });
   });

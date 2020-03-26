@@ -1,0 +1,907 @@
+{
+	"info": {
+		"_postman_id": "a5c698e3-476e-4678-b93f-63e8f3b4a1c4",
+		"name": "The PC Review",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "User profile",
+			"item": [
+				{
+					"name": "Upload profile picture",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": " Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVlNDQwMjJiOGJlZDMwMWM4ODBmMDBhNCIsIm5hbWUiOiJDaHJpcyIsImlhdCI6MTU4NTIyMjAwMiwiZXhwIjoxNTg1MzA4NDAyfQ.VtIQvva3KSQVVjNW0JbYj9gAsMA1aMwSVGuUexnwrGQ",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "image",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "userId",
+									"value": "",
+									"type": "text"
+								}
+							],
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/userProfile/uploadImage/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"userProfile",
+								"uploadImage",
+								""
+							],
+							"query": [
+								{
+									"key": "image",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "userId",
+									"value": "5e44022b8bed301c880f00a4",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Uploads profile picture of user."
+					},
+					"response": []
+				},
+				{
+					"name": "User info",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": " Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVlNDQwMjJiOGJlZDMwMWM4ODBmMDBhNCIsIm5hbWUiOiJDaHJpcyIsImlhdCI6MTU4NTIyMjAwMiwiZXhwIjoxNTg1MzA4NDAyfQ.VtIQvva3KSQVVjNW0JbYj9gAsMA1aMwSVGuUexnwrGQ",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/api/userProfile/{id}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"userProfile",
+								"{id}"
+							]
+						},
+						"description": "Gets the user information"
+					},
+					"response": []
+				},
+				{
+					"name": "Modify user info",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": " Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVlNDQwMjJiOGJlZDMwMWM4ODBmMDBhNCIsIm5hbWUiOiJDaHJpcyIsImlhdCI6MTU4NTIyMjAwMiwiZXhwIjoxNTg1MzA4NDAyfQ.VtIQvva3KSQVVjNW0JbYj9gAsMA1aMwSVGuUexnwrGQ",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"\",\n    \"email\": \"\",\n    \"userInfo\": {\n        \"bio\": \"\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/userProfile/updateUser/{id}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"userProfile",
+								"updateUser",
+								"{id}"
+							]
+						},
+						"description": "Modifies the user information"
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "User list",
+			"item": [
+				{
+					"name": "Get list of users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": " Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVlNDQwMjJiOGJlZDMwMWM4ODBmMDBhNCIsIm5hbWUiOiJDaHJpcyIsImlhdCI6MTU4NTIyMjAwMiwiZXhwIjoxNTg1MzA4NDAyfQ.VtIQvva3KSQVVjNW0JbYj9gAsMA1aMwSVGuUexnwrGQ",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/api/userList/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"userList",
+								""
+							]
+						},
+						"description": "Get a list of the users registered"
+					},
+					"response": []
+				},
+				{
+					"name": "Get user from list of users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": " Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVlNDQwMjJiOGJlZDMwMWM4ODBmMDBhNCIsIm5hbWUiOiJDaHJpcyIsImlhdCI6MTU4NTIyMjAwMiwiZXhwIjoxNTg1MzA4NDAyfQ.VtIQvva3KSQVVjNW0JbYj9gAsMA1aMwSVGuUexnwrGQ",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/api/userList/{id}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"userList",
+								"{id}"
+							]
+						},
+						"description": "Gets an user from list."
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Register user",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"testingUser\",\n    \"email\": \"testing@hotmail.com\",\n    \"password\": \"password\",\n    \"password2\": \"password\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/users/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"users",
+								"register"
+							]
+						},
+						"description": "Registers an user"
+					},
+					"response": []
+				},
+				{
+					"name": "Login user",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"test@test.com\",\n    \"password\": \"\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/users/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"users",
+								"login"
+							]
+						},
+						"description": "Logs an user into the website."
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "74f73761-a072-4ba7-98cb-874b9a01e687",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "c8b5ee9c-bdc8-447c-b72d-89acf1bdd03b",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Tasks",
+			"item": [
+				{
+					"name": "Add task",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Test\",\n    \"description\": \"Test\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/tasks",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"tasks"
+							]
+						},
+						"description": "Adds a new task"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete task",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/api/tasks/{id}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"tasks",
+								"{id}"
+							]
+						},
+						"description": "Deletes existing task"
+					},
+					"response": []
+				},
+				{
+					"name": "Get task",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/api/tasks/{id}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"tasks",
+								"{id}"
+							]
+						},
+						"description": "Gets existing task"
+					},
+					"response": []
+				},
+				{
+					"name": "Get tasks",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/api/tasks/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"tasks",
+								""
+							]
+						},
+						"description": "Gets existing tasks"
+					},
+					"response": []
+				},
+				{
+					"name": "Update task",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"The new title\",\n    \"description\": \"The new description\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/tasks/{id}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"tasks",
+								"{id}"
+							]
+						},
+						"description": "Modifies existing task"
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Stalks",
+			"item": [
+				{
+					"name": "Get received stalk requests",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": " Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVlNDQwMjJiOGJlZDMwMWM4ODBmMDBhNCIsIm5hbWUiOiJDaHJpcyIsImlhdCI6MTU4NTIyMjAwMiwiZXhwIjoxNTg1MzA4NDAyfQ.VtIQvva3KSQVVjNW0JbYj9gAsMA1aMwSVGuUexnwrGQ",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/api/stalks/received/{id}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"stalks",
+								"received",
+								"{id}"
+							]
+						},
+						"description": "Get the stalk requests received from another users"
+					},
+					"response": []
+				},
+				{
+					"name": "Get stalkings",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": " Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVlNDQwMjJiOGJlZDMwMWM4ODBmMDBhNCIsIm5hbWUiOiJDaHJpcyIsImlhdCI6MTU4NTIyMjAwMiwiZXhwIjoxNTg1MzA4NDAyfQ.VtIQvva3KSQVVjNW0JbYj9gAsMA1aMwSVGuUexnwrGQ"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/api/stalks/stalking/{id}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"stalks",
+								"stalking",
+								"{id}"
+							]
+						},
+						"description": "Get the users who an users stalks"
+					},
+					"response": []
+				},
+				{
+					"name": "Get stalkers",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": " Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVlNDQwMjJiOGJlZDMwMWM4ODBmMDBhNCIsIm5hbWUiOiJDaHJpcyIsImlhdCI6MTU4NTIyMjAwMiwiZXhwIjoxNTg1MzA4NDAyfQ.VtIQvva3KSQVVjNW0JbYj9gAsMA1aMwSVGuUexnwrGQ"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/api/stalks/stalkers/{id}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"stalks",
+								"stalkers",
+								"{id}"
+							]
+						},
+						"description": "Get the users who stalk an user"
+					},
+					"response": []
+				},
+				{
+					"name": "Get stalkers amount",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": " Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVlNDQwMjJiOGJlZDMwMWM4ODBmMDBhNCIsIm5hbWUiOiJDaHJpcyIsImlhdCI6MTU4NTIyMjAwMiwiZXhwIjoxNTg1MzA4NDAyfQ.VtIQvva3KSQVVjNW0JbYj9gAsMA1aMwSVGuUexnwrGQ"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/api/stalks/stalkers/{id}/amount",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"stalks",
+								"stalkers",
+								"{id}",
+								"amount"
+							]
+						},
+						"description": "Get the amount of users who stalk an user"
+					},
+					"response": []
+				},
+				{
+					"name": "Get stalkings amount",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": " Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVlNDQwMjJiOGJlZDMwMWM4ODBmMDBhNCIsIm5hbWUiOiJDaHJpcyIsImlhdCI6MTU4NTIyMjAwMiwiZXhwIjoxNTg1MzA4NDAyfQ.VtIQvva3KSQVVjNW0JbYj9gAsMA1aMwSVGuUexnwrGQ"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/api/stalks/stalking/{id}/amount",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"stalks",
+								"stalking",
+								"{id}",
+								"amount"
+							]
+						},
+						"description": "Get the amount of users who an users stalks"
+					},
+					"response": []
+				},
+				{
+					"name": "Get received stalk requests amount",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": " Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVlNDQwMjJiOGJlZDMwMWM4ODBmMDBhNCIsIm5hbWUiOiJDaHJpcyIsImlhdCI6MTU4NTIyMjAwMiwiZXhwIjoxNTg1MzA4NDAyfQ.VtIQvva3KSQVVjNW0JbYj9gAsMA1aMwSVGuUexnwrGQ"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/api/stalks/received/{id}/amount",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"stalks",
+								"received",
+								"{id}",
+								"amount"
+							]
+						},
+						"description": "Get the number of stalk requests received from another users"
+					},
+					"response": []
+				},
+				{
+					"name": "Get sent stalk requests",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": " Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVlNDQwMjJiOGJlZDMwMWM4ODBmMDBhNCIsIm5hbWUiOiJDaHJpcyIsImlhdCI6MTU4NTIyMjAwMiwiZXhwIjoxNTg1MzA4NDAyfQ.VtIQvva3KSQVVjNW0JbYj9gAsMA1aMwSVGuUexnwrGQ"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:3001/api/stalks/sent/{id}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"stalks",
+								"sent",
+								"{id}"
+							]
+						},
+						"description": "Get the stalk requests sent to another users"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete stalk sent",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": " Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVlNDQwMjJiOGJlZDMwMWM4ODBmMDBhNCIsIm5hbWUiOiJDaHJpcyIsImlhdCI6MTU4NTIyMjAwMiwiZXhwIjoxNTg1MzA4NDAyfQ.VtIQvva3KSQVVjNW0JbYj9gAsMA1aMwSVGuUexnwrGQ"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"recipient\": \"recipient_id\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/stalks/cancel/{id}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"stalks",
+								"cancel",
+								"{id}"
+							]
+						},
+						"description": "Deletes a stalk with an user"
+					},
+					"response": []
+				},
+				{
+					"name": "Accept stalk request",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": " Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVlNDQwMjJiOGJlZDMwMWM4ODBmMDBhNCIsIm5hbWUiOiJDaHJpc3RpYW4iLCJpYXQiOjE1ODUyMjc1MTEsImV4cCI6MTU4NTMxMzkxMX0.133k2CWgtHnUsEBWVjLbHySSqgFEiJkx0KYHnwJzK_M",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requester\": \"requester_id\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/stalks/accept/{id}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"stalks",
+								"accept",
+								"{id}"
+							]
+						},
+						"description": "Accepts a stalk request received in pending status"
+					},
+					"response": []
+				},
+				{
+					"name": "Deny stalk request",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": " Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVlNDQwMjJiOGJlZDMwMWM4ODBmMDBhNCIsIm5hbWUiOiJDaHJpc3RpYW4iLCJpYXQiOjE1ODUyMjc1MTEsImV4cCI6MTU4NTMxMzkxMX0.133k2CWgtHnUsEBWVjLbHySSqgFEiJkx0KYHnwJzK_M",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"requester\": \"requester_id\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/stalks/deny/{id}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"stalks",
+								"deny",
+								"{id}"
+							]
+						},
+						"description": "Danies a stalk request received in pending status"
+					},
+					"response": []
+				},
+				{
+					"name": "Stalk user",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": " Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVlNDQwMjJiOGJlZDMwMWM4ODBmMDBhNCIsIm5hbWUiOiJDaHJpc3RpYW4iLCJpYXQiOjE1ODUyMjc1MTEsImV4cCI6MTU4NTMxMzkxMX0.133k2CWgtHnUsEBWVjLbHySSqgFEiJkx0KYHnwJzK_M",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"recipient\": \"recipient_id\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/stalks/{id}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"stalks",
+								"{id}"
+							]
+						},
+						"description": "Sends an user request to the user if he doesn't have public profile."
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Images",
+			"item": [
+				{
+					"name": "Get images",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/api/images",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"images"
+							]
+						},
+						"description": "Get all the images uploaded"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete image",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"imageId\": \"image_id\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/images/{id}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"images",
+								"{id}"
+							]
+						},
+						"description": "Deletes an image"
+					},
+					"response": []
+				},
+				{
+					"name": "Upload image",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "title_value",
+									"type": "text"
+								},
+								{
+									"key": "image",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/images",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"images"
+							]
+						},
+						"description": "Uploads an image"
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "1c09d5b5-0708-4311-8e23-c5d904f8ee6c",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "c90f9512-c11f-45d6-bca6-f153224069d5",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"protocolProfileBehavior": {}
+}
