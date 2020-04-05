@@ -23,7 +23,9 @@ const UserSchema = new Schema({
   },
   userImage: {
     image: String,
-    imageId: String
+    imageId: String,
+    landscape: String,
+    landscapeId: String
   }
 });
 module.exports = User = mongoose.model("users", UserSchema);
