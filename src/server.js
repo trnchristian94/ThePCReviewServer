@@ -11,6 +11,7 @@ const userProfile = require("./db/routes/userProfile.routes");
 const tasks = require("./db/routes/task.routes");
 const images = require("./db/routes/image.routes");
 const stalks = require("./db/routes/stalk.routes");
+const posts = require("./db/routes/post.routes");
 const keys = require("./db/config/keys");
 
 const app = express();
@@ -54,7 +55,7 @@ app.use(
   passport.authenticate("jwt", { session: false }),
   stalks
 );
-
+app.use("/api/posts", passport.authenticate("jwt", { session: false }), posts);
 // Static files
 app.use(express.static(path.join(__dirname, "public/")));
 
@@ -65,7 +66,7 @@ mongoose
     useNewUrlParser: true
   })
   .then(() => console.log("MongoDB successfully connected"))
-  .catch(err => console.log(err));
+  .catch((err) => console.log(err));
 // Settings
 app.set("port", process.env.PORT || 8000);
 app.listen(app.get("port"), () =>

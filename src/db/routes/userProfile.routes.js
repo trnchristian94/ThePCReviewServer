@@ -16,7 +16,7 @@ router.get("/:id", async (req, res) => {
 router.get("/user/:username", async (req, res) => {
   const user = await User.find({
     name: req.params.username
-  }).select("name userImage userInfo -_id");
+  }).select("name userImage userInfo");
   res.json(user);
 });
 
