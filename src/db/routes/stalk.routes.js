@@ -183,7 +183,7 @@ router.post("/:id", async (req, res) => {
             recipient: req.body.recipient,
             status: REQUESTED
           });
-          stalk.save(err => {
+          stalk.save((err) => {
             if (err) console.error(err);
             // saved!
             return res.json({ status: "Stalk request sent" });
