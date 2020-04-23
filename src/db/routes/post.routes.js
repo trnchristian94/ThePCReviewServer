@@ -77,4 +77,31 @@ router.get("/fromStalkings/:id", async (req, res) => {
   }
 });
 
+router.put("/like/:id", async (req, res) => {
+  await Post.findOneAndUpdate(
+    { _id: req.params.id },
+    // $addToSet to push value without repeating it
+    { $addToSet: { likes: req.user.id } },
+    // new: true returns updated doc
+    { new: true },
+    (err, result) => {
+      if (err) console.error(err);
+      res.json(result);
+    }
+  ).populate("creator", "name userImage.image");
+});
+
+router.put("/removeLike/:id", async (req, res) => {
+  await Post.findOneAndUpdate(
+    { _id: req.params.id },
+    // $pull to remove value
+    { $pull: { likes: req.user.id } },
+    { new: true },
+    (err, result) => {
+      if (err) console.error(err);
+      res.json(result);
+    }
+  ).populate("creator", "name userImage.image");
+});
+
 module.exports = router;

@@ -16,7 +16,11 @@ const PostSchema = new Schema({
   date: {
     type: Date,
     default: Date.now
-  }
+  },
+  likes: [{
+    type: Schema.Types.ObjectId,
+    ref: "User"
+  }]
 });
 module.exports = Post = mongoose.model("posts", PostSchema);
 mongoose.model("User", UserSchema);
