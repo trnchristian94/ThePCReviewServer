@@ -1,0 +1,5 @@
+{
+  "USER_LIKED_POST": "User ${fromUserName} liked your post.",
+  "STALK_ACCEPTED": "User ${fromUserName} has accepted your stalk request.",
+  "STALKING": "User ${fromUserName} is now stalking you."
+}

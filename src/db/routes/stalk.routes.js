@@ -2,6 +2,10 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
 const Stalk = require("../models/Stalk");
+const {
+  uploadNotification,
+  removeNotification
+} = require("../../utils/notifications");
 
 const { isOwnUser } = require("../../utils/permissions");
 
@@ -45,7 +49,7 @@ router.get("/received/:id/:amount?", async (req, res) => {
           {
             _id: { $in: requesters }
           },
-          "name userImage.image userInfo _id",
+          "name userImage.image userImage.landscape userInfo _id",
           (err, users) => {
             if (err) console.error(err);
             return res.json(users);
@@ -75,7 +79,7 @@ router.get("/stalking/:id/:amount?", async (req, res) => {
         {
           _id: { $in: requesters }
         },
-        "name userImage.image userInfo _id",
+        "name userImage.image userImage.landscape userInfo _id",
         (err, users) => {
           if (err) console.error(err);
           return res.json(users);
@@ -105,7 +109,7 @@ router.get("/stalkers/:id/:amount?", async (req, res) => {
         {
           _id: { $in: requesters }
         },
-        "name userImage.image userInfo _id",
+        "name userImage.image userImage.landscape userInfo _id",
         (err, users) => {
           if (err) console.error(err);
           return res.json(users);
@@ -125,6 +129,18 @@ router.delete("/cancel/:id", async (req, res) => {
       (err, response) => {
         if (err) console.error(err);
         if (response) {
+          removeNotification(
+            req.body.recipient,
+            req.params.id,
+            response.id,
+            "STALK_ACCEPTED"
+          );
+          removeNotification(
+            req.params.id,
+            req.body.recipient,
+            response.id,
+            "STALKING"
+          );
           return res.json({ status: "Stalk canceled" });
         } else {
           return res.json({ status: "Stalk not found" });
@@ -157,6 +173,24 @@ router.put("/:action/:id", async (req, res) => {
       (err, stalkReq) => {
         if (err) console.error(err);
         if (stalkReq) {
+          if (status === ACCEPTED) {
+            uploadNotification(
+              req.params.id,
+              req.body.requester,
+              stalkReq.id,
+              "Stalk",
+              "STALK_ACCEPTED",
+              "stalk"
+            );
+            uploadNotification(
+              req.body.requester,
+              req.params.id,
+              stalkReq.id,
+              "Stalk",
+              "STALKING",
+              "stalk"
+            );
+          }
           return res.json({ status: jsonStatus });
         } else {
           return res.json({ status: "No stalk requests where found" });

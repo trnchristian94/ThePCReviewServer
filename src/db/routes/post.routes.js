@@ -3,6 +3,10 @@ const router = express.Router();
 const Post = require("../models/Post");
 const Stalk = require("../models/Stalk");
 
+const {
+  uploadNotification,
+  removeNotification
+} = require("../../utils/notifications");
 const { isOwnUser } = require("../../utils/permissions");
 
 const ACCEPTED = 2;
@@ -87,6 +91,14 @@ router.put("/like/:id", async (req, res) => {
     (err, result) => {
       if (err) console.error(err);
       res.json(result);
+      uploadNotification(
+        req.user.id,
+        result.creator.id,
+        result.id,
+        "Post",
+        "USER_LIKED_POST",
+        "like"
+      );
     }
   ).populate("creator", "name userImage.image");
 });
@@ -100,6 +112,12 @@ router.put("/removeLike/:id", async (req, res) => {
     (err, result) => {
       if (err) console.error(err);
       res.json(result);
+      removeNotification(
+        req.user.id,
+        result.creator.id,
+        result.id,
+        "USER_LIKED_POST"
+      );
     }
   ).populate("creator", "name userImage.image");
 });
