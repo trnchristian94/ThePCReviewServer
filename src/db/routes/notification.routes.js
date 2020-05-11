@@ -17,9 +17,9 @@ router.get("/:id", async (req, res) => {
         var notifications = [];
         for (let i = 0; i < response.length; i++) {
           if (
-            response[i].type === null &&
-            response[i].fromUser === null &&
-            response[i].toUser === null
+            response[i].type !== null &&
+            response[i].fromUser !== null &&
+            response[i].toUser !== null
           ) {
             notifications.push({
               message: getMessage(response[i].message, "en", response[i]),
