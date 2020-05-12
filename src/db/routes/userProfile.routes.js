@@ -20,6 +20,13 @@ router.get("/user/:username", async (req, res) => {
   res.json(user);
 });
 
+router.get("/getUserId/:username", async (req, res) => {
+  const user = await User.find({
+    name: req.params.username
+  }).select("_id");
+  res.json(user);
+});
+
 router.put("/updateUser/:id", async (req, res) => {
   if (isOwnUser(req, res)) {
     const { name, email, userInfo } = req.body;
