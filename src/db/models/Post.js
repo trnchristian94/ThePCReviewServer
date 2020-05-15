@@ -9,6 +9,10 @@ const PostSchema = new Schema({
     ref: "User",
     required: true
   },
+  answeredPost: {
+    type: Schema.Types.ObjectId,
+    ref: "Post"
+  },
   text: {
     type: String,
     required: true
@@ -17,10 +21,22 @@ const PostSchema = new Schema({
     type: Date,
     default: Date.now
   },
-  likes: [{
-    type: Schema.Types.ObjectId,
-    ref: "User"
-  }]
+  likes: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "User"
+    }
+  ],
+  answers: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Post"
+    }
+  ],
+  postImage: {
+    image: String,
+    imageId: String
+  }
 });
 module.exports = Post = mongoose.model("posts", PostSchema);
 mongoose.model("User", UserSchema);

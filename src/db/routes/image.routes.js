@@ -15,9 +15,7 @@ router.get("/", (req, res) => {
 
 router.post("/", imageUtils.upload.single("image"), (req, res) => {
   imageUtils.cloudinary.v2.uploader.upload(req.file.path, (err, result) => {
-    if (err) {
-      req.json(err.message);
-    }
+    if (err) res.json(err.message);
     req.body.image = result.secure_url;
     // add image's public_id to image object
     req.body.imageId = result.public_id;
@@ -37,9 +35,7 @@ router.delete("/:id", async (req, res) => {
   await Image.findByIdAndRemove(req.params.id);
   const { imageId } = req.body;
   imageUtils.cloudinary.v2.uploader.destroy(imageId, (err, result) => {
-    if (err) {
-      return res.json(err.message);
-    }
+    if (err) return res.json(err.message);
     res.json({ status: "Image deleted" });
   });
 });
