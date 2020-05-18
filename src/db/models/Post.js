@@ -27,6 +27,12 @@ const PostSchema = new Schema({
       ref: "User"
     }
   ],
+  reposts: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Repost"
+    }
+  ],
   answers: [
     {
       type: Schema.Types.ObjectId,

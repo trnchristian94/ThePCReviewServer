@@ -13,6 +13,7 @@ const images = require("./db/routes/image.routes");
 const stalks = require("./db/routes/stalk.routes");
 const posts = require("./db/routes/post.routes");
 const notifications = require("./db/routes/notification.routes");
+const repost = require("./db/routes/repost.routes");
 const keys = require("./db/config/keys");
 
 const app = express();
@@ -61,6 +62,11 @@ app.use(
   "/api/notifications",
   passport.authenticate("jwt", { session: false }),
   notifications
+);
+app.use(
+  "/api/repost",
+  passport.authenticate("jwt", { session: false }),
+  repost
 );
 // Static files
 app.use(express.static(path.join(__dirname, "public/")));

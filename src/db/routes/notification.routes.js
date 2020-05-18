@@ -12,6 +12,13 @@ router.get("/:id", async (req, res) => {
       .populate("fromUser", "name userImage")
       .populate("toUser", "name userImage")
       .populate("type")
+      .populate({
+        path: "type",
+        populate: {
+          path: "post",
+          model: "Post"
+        }
+      })
       .exec((err, response) => {
         if (err) console.log(err);
         var notifications = [];
@@ -55,10 +62,11 @@ router.get("/:id", async (req, res) => {
 
 router.get("/:id/amount", async (req, res) => {
   if (isOwnUser(req, res)) {
-    await Notification.find({ toUser: req.params.id, read: false }).exec(
-      (err, response) => {
+    await Notification.count(
+      { toUser: req.params.id, read: false },
+      (err, result) => {
         if (err) console.log(err);
-        res.json({ newNotifications: response.length });
+        res.json(result);
       }
     );
   }

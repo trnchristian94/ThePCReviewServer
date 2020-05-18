@@ -29,7 +29,22 @@ router.get("/sent/:id", async (req, res) => {
 });
 
 // Get list of stalk requests received
-router.get("/received/:id/:amount?", async (req, res) => {
+router.get("/received/:id/amount", async (req, res) => {
+  if (isOwnUser(req, res))
+    await Stalk.count(
+      {
+        recipient: req.params.id,
+        status: REQUESTED
+      },
+      (err, result) => {
+        if (err) console.error(err);
+        return res.json(result);
+      }
+    );
+});
+
+// Get list of stalk requests received
+router.get("/received/:id", async (req, res) => {
   if (isOwnUser(req, res))
     await Stalk.find(
       {
@@ -38,9 +53,6 @@ router.get("/received/:id/:amount?", async (req, res) => {
       },
       (err, requests) => {
         if (err) console.error(err);
-        if (req.params.amount) {
-          return res.json({ stalkRequests: requests.length });
-        }
         let requesters = [];
         for (let i = 0; i < requests.length; i++) {
           requesters.push(requests[i].requester);
@@ -59,8 +71,22 @@ router.get("/received/:id/:amount?", async (req, res) => {
     ).select("requester status -_id");
 });
 
+// Get amount of users who an user stalks
+router.get("/stalking/:id/amount", async (req, res) => {
+  await Stalk.count(
+    {
+      requester: req.params.id,
+      status: ACCEPTED
+    },
+    (err, result) => {
+      if (err) console.error(err);
+      return res.json(result);
+    }
+  );
+});
+
 // Get list of users who an user stalks
-router.get("/stalking/:id/:amount?", async (req, res) => {
+router.get("/stalking/:id", async (req, res) => {
   await Stalk.find(
     {
       requester: req.params.id,
@@ -68,9 +94,6 @@ router.get("/stalking/:id/:amount?", async (req, res) => {
     },
     (err, requests) => {
       if (err) console.error(err);
-      if (req.params.amount) {
-        return res.json({ stalking: requests.length });
-      }
       let requesters = [];
       for (let i = 0; i < requests.length; i++) {
         requesters.push(requests[i].recipient);
@@ -89,8 +112,22 @@ router.get("/stalking/:id/:amount?", async (req, res) => {
   ).select("recipient status -_id");
 });
 
+// Get amount of users who stalk an user
+router.get("/stalkers/:id/amount", async (req, res) => {
+  await Stalk.count(
+    {
+      recipient: req.params.id,
+      status: ACCEPTED
+    },
+    (err, result) => {
+      if (err) console.error(err);
+      return res.json(result);
+    }
+  );
+});
+
 // Get list of users who stalk an user
-router.get("/stalkers/:id/:amount?", async (req, res) => {
+router.get("/stalkers/:id", async (req, res) => {
   await Stalk.find(
     {
       recipient: req.params.id,
@@ -98,9 +135,6 @@ router.get("/stalkers/:id/:amount?", async (req, res) => {
     },
     (err, requests) => {
       if (err) console.error(err);
-      if (req.params.amount) {
-        return res.json({ stalkers: requests.length });
-      }
       let requesters = [];
       for (let i = 0; i < requests.length; i++) {
         requesters.push(requests[i].requester);

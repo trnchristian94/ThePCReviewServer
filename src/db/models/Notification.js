@@ -3,6 +3,7 @@ const Schema = mongoose.Schema;
 
 mongoose.model("Post", new Schema({}));
 mongoose.model("Stalk", new Schema({}));
+mongoose.model("Repost", new Schema({}));
 // Create Schema
 const NotificationSchema = new Schema({
   read: Boolean,
@@ -30,7 +31,7 @@ const NotificationSchema = new Schema({
   typeModel: {
     type: String,
     required: true,
-    enum: ["Post", "Stalk"]
+    enum: ["Post", "Stalk", "Repost"]
   },
   message: {
     type: String

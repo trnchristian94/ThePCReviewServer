@@ -132,7 +132,6 @@ router.delete("/:id", async (req, res) => {
 router.get("/", async (req, res) => {
   await Post.find()
     .populate("creator", "name")
-    .populate("answeredPost")
     .populate({
       path: "answeredPost",
       model: "Post",
@@ -148,13 +147,23 @@ router.get("/", async (req, res) => {
     });
 });
 
+router.get("/from/:id/amount", async (req, res) => {
+  await Post.count(
+    {
+      creator: req.params.id
+    },
+    (err, result) => {
+      if (err) console.log(err);
+      res.json(result);
+    }
+  );
+});
 router.get("/from/:id", async (req, res) => {
   await Post.find({
     creator: req.params.id
   })
     .sort("-date")
     .populate("creator", "name userImage.image")
-    .populate("answeredPost")
     .populate({
       path: "answeredPost",
       model: "Post",
@@ -164,9 +173,38 @@ router.get("/from/:id", async (req, res) => {
         select: "name userImage.image"
       }
     })
-    .exec((err, response) => {
+    .exec((err, posts) => {
       if (err) console.log(err);
-      res.json(response);
+      Repost.find({
+        reposter: req.params.id
+      })
+        .populate("reposter", "name userImage.image")
+        .populate({
+          path: "post",
+          model: "Post",
+          populate: {
+            path: "creator",
+            model: "User",
+            select: "name userImage.image"
+          }
+        })
+        .populate({
+          path: "post",
+          model: "Post",
+          populate: {
+            path: "answeredPost",
+            model: "Post",
+            populate: {
+              path: "creator",
+              model: "User",
+              select: "name userImage.image"
+            }
+          }
+        })
+        .exec((err, reposts) => {
+          if (err) console.log(err);
+          res.json(sortAllPosts(posts, reposts));
+        });
     });
 });
 
@@ -179,9 +217,6 @@ router.get("/fromStalkings/:id", async (req, res) => {
       },
       (err, requests) => {
         if (err) console.error(err);
-        if (req.params.amount) {
-          return res.json({ stalking: requests.length });
-        }
         let requesters = [];
         requesters.push(req.params.id);
         for (let i = 0; i < requests.length; i++) {
@@ -192,7 +227,6 @@ router.get("/fromStalkings/:id", async (req, res) => {
         })
           .sort("-date")
           .populate("creator", "name userImage.image")
-          .populate("answeredPost")
           .populate({
             path: "answeredPost",
             model: "Post",
@@ -202,15 +236,45 @@ router.get("/fromStalkings/:id", async (req, res) => {
               select: "name userImage.image"
             }
           })
-          .exec((err, response) => {
+          .exec((err, posts) => {
             if (err) console.log(err);
-            res.json(response);
+            Repost.find({
+              reposter: { $in: requesters }
+            })
+              .populate("reposter", "name userImage.image")
+              .populate({
+                path: "post",
+                model: "Post",
+                populate: {
+                  path: "creator",
+                  model: "User",
+                  select: "name userImage.image"
+                }
+              })
+              .populate({
+                path: "post",
+                model: "Post",
+                populate: {
+                  path: "answeredPost",
+                  model: "Post",
+                  populate: {
+                    path: "creator",
+                    model: "User",
+                    select: "name userImage.image"
+                  }
+                }
+              })
+              .exec((err, reposts) => {
+                if (err) console.log(err);
+                res.json(sortAllPosts(posts, reposts));
+              });
           });
       }
     ).select("recipient status -_id");
   }
 });
 
+// To add a like to a post
 router.put("/like/:id", async (req, res) => {
   await Post.findOneAndUpdate(
     { _id: req.params.id },
@@ -230,9 +294,20 @@ router.put("/like/:id", async (req, res) => {
         "like"
       );
     }
-  ).populate("creator", "name userImage.image");
+  )
+    .populate("creator", "name userImage.image")
+    .populate({
+      path: "answeredPost",
+      model: "Post",
+      populate: {
+        path: "creator",
+        model: "User",
+        select: "name userImage.image"
+      }
+    });
 });
 
+// To remove a like from a post
 router.put("/removeLike/:id", async (req, res) => {
   await Post.findOneAndUpdate(
     { _id: req.params.id },
@@ -249,7 +324,55 @@ router.put("/removeLike/:id", async (req, res) => {
         "USER_LIKED_POST"
       );
     }
-  ).populate("creator", "name userImage.image");
+  )
+    .populate("creator", "name userImage.image")
+    .populate({
+      path: "answeredPost",
+      model: "Post",
+      populate: {
+        path: "creator",
+        model: "User",
+        select: "name userImage.image"
+      }
+    });
 });
+
+router.get("/likes/:id/amount", async (req, res) => {
+  await Post.count({ likes: req.params.id }, (err, result) => {
+    if (err) console.error(err);
+    res.json(result);
+  });
+});
+
+router.get("/likes/:id", async (req, res) => {
+  await Post.find({ likes: req.params.id }, (err, result) => {
+    if (err) console.error(err);
+    res.json(result);
+  })
+    .populate("creator", "name userImage.image")
+    .populate({
+      path: "answeredPost",
+      model: "Post",
+      populate: {
+        path: "creator",
+        model: "User",
+        select: "name userImage.image"
+      }
+    });
+});
+
+const sortAllPosts = (posts, reposts) => {
+  let totalPosts = [];
+  for (let i = 0; i < posts.length; i++) {
+    totalPosts.push(posts[i]);
+  }
+  for (let i = 0; i < reposts.length; i++) {
+    totalPosts.push(reposts[i]);
+  }
+  totalPosts.sort((a, b) => {
+    return new Date(b.date) - new Date(a.date);
+  });
+  return totalPosts;
+};
 
 module.exports = router;
