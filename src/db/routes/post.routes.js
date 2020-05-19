@@ -114,6 +114,12 @@ router.delete("/:id", async (req, res) => {
           }
         );
       }
+      if(post.reposts){
+        Repost.deleteMany({ post: req.body.postId }, (err, response) => {
+          if (err) console.log(err);
+          console.log("Deleted reposts: " + response.deletedCount);
+        });
+      }
       if (post.postImage) {
         imageUtils.cloudinary.v2.uploader.destroy(
           `posts/${post.postImage.imageId}`,
@@ -367,12 +373,36 @@ const sortAllPosts = (posts, reposts) => {
     totalPosts.push(posts[i]);
   }
   for (let i = 0; i < reposts.length; i++) {
-    totalPosts.push(reposts[i]);
+    if (reposts[i].post !== null && reposts[i].reposter !== null) {
+      totalPosts.push(reposts[i]);
+    } else {
+      checkRepostNull(reposts[i]);
+    }
   }
   totalPosts.sort((a, b) => {
     return new Date(b.date) - new Date(a.date);
   });
   return totalPosts;
+};
+
+const checkRepostNull = (repost) => {
+  if (repost.post === null) {
+    console.log("Empty repost ref found, deleting all reposts with ref null");
+    Repost.findById(repost.id, (err, resp) => {
+      Repost.deleteMany({ post: resp.post }, (err, response) => {
+        if (err) console.log(err);
+        console.log("Deleted reposts: " + response.deletedCount);
+      });
+    });
+  } else if (repost.reposter === null) {
+    console.log("Empty repost ref found, deleting all reposts with ref null");
+    Repost.findById(repost.id, (err, resp) => {
+      Repost.deleteMany({ reposter: resp.reposter }, (err, response) => {
+        if (err) console.log(err);
+        console.log("Deleted reposts: " + response.deletedCount);
+      });
+    });
+  }
 };
 
 module.exports = router;
