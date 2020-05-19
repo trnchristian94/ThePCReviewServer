@@ -31,7 +31,7 @@ router.get("/sent/:id", async (req, res) => {
 // Get list of stalk requests received
 router.get("/received/:id/amount", async (req, res) => {
   if (isOwnUser(req, res))
-    await Stalk.count(
+    await Stalk.countDocuments(
       {
         recipient: req.params.id,
         status: REQUESTED
@@ -73,7 +73,7 @@ router.get("/received/:id", async (req, res) => {
 
 // Get amount of users who an user stalks
 router.get("/stalking/:id/amount", async (req, res) => {
-  await Stalk.count(
+  await Stalk.countDocuments(
     {
       requester: req.params.id,
       status: ACCEPTED
@@ -114,7 +114,7 @@ router.get("/stalking/:id", async (req, res) => {
 
 // Get amount of users who stalk an user
 router.get("/stalkers/:id/amount", async (req, res) => {
-  await Stalk.count(
+  await Stalk.countDocuments(
     {
       recipient: req.params.id,
       status: ACCEPTED

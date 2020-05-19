@@ -62,7 +62,7 @@ router.get("/:id", async (req, res) => {
 
 router.get("/:id/amount", async (req, res) => {
   if (isOwnUser(req, res)) {
-    await Notification.count(
+    await Notification.countDocuments(
       { toUser: req.params.id, read: false },
       (err, result) => {
         if (err) console.log(err);

@@ -72,6 +72,7 @@ router.delete("/:id", async (req, res) => {
       },
       async (err, response) => {
         if (err) console.log(err);
+        const repostId = response.id;
         if (response) {
           await Post.findByIdAndUpdate(
             response.post._id.toString(),
@@ -79,6 +80,12 @@ router.delete("/:id", async (req, res) => {
             { new: true },
             (err, result) => {
               if (err) console.error(err);
+              removeNotification(
+                req.params.id,
+                result.creator._id.toString(),
+                repostId,
+                "USER_REPOSTED_POST"
+              );
               return res.json({ status: "Repost deleted" });
             }
           );

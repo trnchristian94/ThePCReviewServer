@@ -148,7 +148,7 @@ router.get("/", async (req, res) => {
 });
 
 router.get("/from/:id/amount", async (req, res) => {
-  await Post.count(
+  await Post.countDocuments(
     {
       creator: req.params.id
     },
@@ -338,7 +338,7 @@ router.put("/removeLike/:id", async (req, res) => {
 });
 
 router.get("/likes/:id/amount", async (req, res) => {
-  await Post.count({ likes: req.params.id }, (err, result) => {
+  await Post.countDocuments({ likes: req.params.id }, (err, result) => {
     if (err) console.error(err);
     res.json(result);
   });
