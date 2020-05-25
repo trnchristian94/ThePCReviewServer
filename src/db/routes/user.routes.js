@@ -39,7 +39,7 @@ router.post("/register", async (req, res) => {
               userInfo: { bio: "Hi there! I'm using The PC Review" },
               userImage: {
                 image:
-                  "https://res.cloudinary.com/dz6ogknjd/image/upload/v1586040223/user/avatar/default.png",
+                  "https://res.cloudinary.com/dz6ogknjd/image/upload/v1590376388/user/avatar/default.png",
                 imageId: null
               }
             });

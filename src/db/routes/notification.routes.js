@@ -35,7 +35,8 @@ router.get("/:id", async (req, res) => {
               date: response[i].date,
               type: response[i].type,
               iconType: response[i].iconType,
-              typeModel: response[i].typeModel
+              typeModel: response[i].typeModel,
+              read: response[i].read
             });
           } else if (
             response[i].type === null ||
