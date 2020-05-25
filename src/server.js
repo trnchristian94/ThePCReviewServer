@@ -8,8 +8,6 @@ const passport = require("passport");
 const users = require("./db/routes/user.routes");
 const userList = require("./db/routes/userList.routes");
 const userProfile = require("./db/routes/userProfile.routes");
-const tasks = require("./db/routes/task.routes");
-const images = require("./db/routes/image.routes");
 const stalks = require("./db/routes/stalk.routes");
 const posts = require("./db/routes/post.routes");
 const notifications = require("./db/routes/notification.routes");
@@ -18,8 +16,6 @@ const hardware = require("./db/routes/hardware.routes");
 const keys = require("./db/config/keys");
 
 const app = express();
-
-//const { mongoose } = require('./database');
 
 // Bodyparser middleware
 app.use(
@@ -40,9 +36,7 @@ app.use(passport.initialize());
 require("./db/config/passport")(passport);
 
 // Routes
-app.use("/api/tasks", tasks);
 app.use("/api/users", users);
-app.use("/api/images", images);
 app.use(
   "/api/userList",
   passport.authenticate("jwt", { session: false }),
