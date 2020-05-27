@@ -99,7 +99,7 @@ const addAnswerToPost = (req, res, answeredPost, postId) => {
 
 router.delete("/:id", async (req, res) => {
   if (isOwnUser(req, res)) {
-    await Post.findByIdAndDelete(req.body.postId, (err, post) => {
+    Post.findByIdAndDelete(req.body.postId, (err, post) => {
       if (err) return res.json(err.message);
       if (!post) return res.json({ status: "Post not found" });
       if (post.answeredPost) {

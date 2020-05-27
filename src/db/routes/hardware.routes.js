@@ -31,7 +31,7 @@ router.post("/add/:id", imageUtils.upload.array("images"), async (req, res) => {
             req.files[i].path,
             {
               folder: `hardware/`,
-              public_id: `${hw.id}__${i}` 
+              public_id: `${hw.id}__${i}`
             },
             async (err, result) => {
               if (err) return res.json(err.message);
@@ -42,7 +42,7 @@ router.post("/add/:id", imageUtils.upload.array("images"), async (req, res) => {
                   $addToSet: {
                     images: {
                       image: result.secure_url,
-                      imageId: hw.id
+                      imageId: result.public_id
                     }
                   }
                 },
@@ -66,6 +66,7 @@ router.post("/add/:id", imageUtils.upload.array("images"), async (req, res) => {
     });
   }
 });
+
 router.get("/", async (req, res) => {
   let findParameters = {};
   if (req.query.name)
@@ -76,6 +77,7 @@ router.get("/", async (req, res) => {
     $lte: req.query.maxVal ? req.query.maxVal : 10000
   };
   await Hardware.find(findParameters)
+    .sort("-date")
     .populate("creator", "name userImage.image")
     .exec((err, response) => {
       if (err) console.log(err);
@@ -85,7 +87,7 @@ router.get("/", async (req, res) => {
 
 router.delete("/:id", async (req, res) => {
   if (isOwnUser(req, res)) {
-    await Hardware.findByIdAndDelete(req.body.hardwareId, (err, hardware) => {
+    Hardware.findByIdAndDelete(req.body.hardwareId, (err, hardware) => {
       if (err) return res.json(err.message);
       if (!hardware) return res.status(404).json({ status: "Post not found" });
       if (hardware.images.length > 0) {
@@ -102,4 +104,62 @@ router.delete("/:id", async (req, res) => {
     });
   }
 });
+
+router.put("/:id", async (req, res) => {
+  if (isOwnUser(req, res)) {
+    const { name, type, description, price } = req.body;
+    const newPieceInfo = { name, type, description, price };
+    await Hardware.findByIdAndUpdate(
+      req.body.pieceId,
+      newPieceInfo,
+      (err, piece) => {
+        if (err) return res.json(err.message);
+        if (!piece)
+          return res.status(404).json({ status: "Hardware not found" });
+        return res.json({ status: "Hardware piece updated" });
+      }
+    );
+  }
+});
+router.put("/setPrincipalImage/:id", async (req, res) => {
+  let images = req.body.images;
+  let temp = images[0];
+  images[0] = images[req.body.index];
+  images[req.body.index] = temp;
+  if (isOwnUser(req, res)) {
+    await Hardware.update(
+      { _id: req.body.pieceId },
+      { $set: { images: images } },
+      (err, hardware) => {
+        if (err) return res.json(err.message);
+        if (!hardware)
+          return res.status(404).json({ status: "Hardware not found" });
+        return res.json({ status: "Image set as principal" });
+      }
+    );
+  }
+});
+
+router.put("/removeImage/:id", async (req, res) => {
+  const imgId = req.body.images[req.body.index].imageId;
+  if (isOwnUser(req, res)) {
+    Hardware.findOne({ _id: req.body.pieceId }, (err, hardware) => {
+      if (err) return console.log(err.message);
+      if (!hardware)
+        return res.status(404).json({ status: "Hardware not found" });
+      imageUtils.cloudinary.v2.uploader.destroy(`${imgId}`, (err, result) => {
+        if (err) return res.json(err.message);
+        hardware.update(
+          { $pull: { images: { imageId: imgId } } },
+          { safe: true, multi: true },
+          (err) => {
+            if (err) return console.log(err);
+            return res.json({ status: "Hardware image deleted" });
+          }
+        );
+      });
+    });
+  }
+});
+
 module.exports = router;
