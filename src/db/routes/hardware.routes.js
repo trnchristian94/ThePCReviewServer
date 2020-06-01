@@ -76,7 +76,18 @@ router.get("/", async (req, res) => {
     $gte: req.query.minVal ? req.query.minVal : 0,
     $lte: req.query.maxVal ? req.query.maxVal : 10000
   };
+  if (req.query.ownSetup) findParameters.users = req.user.id;
   await Hardware.find(findParameters)
+    .sort("-date")
+    .populate("creator", "name userImage.image")
+    .exec((err, response) => {
+      if (err) console.log(err);
+      res.json(response);
+    });
+});
+
+router.get("/:id", async (req, res) => {
+  await Hardware.findById(req.params.id)
     .sort("-date")
     .populate("creator", "name userImage.image")
     .exec((err, response) => {
@@ -109,16 +120,22 @@ router.put("/:id", async (req, res) => {
   if (isOwnUser(req, res)) {
     const { name, type, description, price } = req.body;
     const newPieceInfo = { name, type, description, price };
-    await Hardware.findByIdAndUpdate(
-      req.body.pieceId,
-      newPieceInfo,
-      (err, piece) => {
+    await Hardware.findOne({ _id: req.body.pieceId }, (err, piece) => {
+      if (err) return res.json(err.message);
+      if (!piece) return res.status(404).json({ status: "Hardware not found" });
+      piece.name = req.body.name;
+      piece.description = req.body.description;
+      piece.price = req.body.price;
+      if (piece.users.length === 0 || !piece.users) {
+        piece.type = req.body.type;
+      }
+      piece.save((err, result) => {
         if (err) return res.json(err.message);
-        if (!piece)
+        if (!result)
           return res.status(404).json({ status: "Hardware not found" });
         return res.json({ status: "Hardware piece updated" });
-      }
-    );
+      });
+    });
   }
 });
 router.put("/setPrincipalImage/:id", async (req, res) => {
@@ -158,6 +175,148 @@ router.put("/removeImage/:id", async (req, res) => {
           }
         );
       });
+    });
+  }
+});
+
+// Setup routes
+
+router.put("/addToSetup/:id", async (req, res) => {
+  if (isOwnUser(req, res)) {
+    Hardware.findOne({ _id: req.body.hardwareId }, (err, hardware) => {
+      if (err) return console.log(err.message);
+      if (!hardware)
+        return res.status(404).json({ status: "Hardware not found" });
+      Hardware.findOne(
+        { users: req.params.id, type: hardware.type },
+        (err, hardwareFromUser) => {
+          if (err) return console.log(err.message);
+          if (hardwareFromUser)
+            return res.status(400).json({
+              status: `You can't add this hardware because you already added ${hardwareFromUser.name} to your setup as ${hardwareFromUser.type}, please remove it and try again.`
+            });
+          hardware.update(
+            { $addToSet: { users: req.params.id } },
+            { new: true },
+            (err, result) => {
+              if (err) return console.log(err.message);
+              if (!result)
+                return res.status(404).json({ status: "Hardware not found" });
+              return res.json({ status: "Hardware added to your setup" });
+            }
+          );
+        }
+      );
+    });
+  }
+});
+
+router.get("/lookForSetup/:id", async (req, res) => {
+  if (isOwnUser(req, res)) {
+    Hardware.find({ users: req.query.user }, (err, hardware) => {
+      return res.json(hardware);
+    });
+  }
+});
+
+router.put("/removeFromSetup/:id", async (req, res) => {
+  if (isOwnUser(req, res)) {
+    Hardware.findOne(
+      { _id: req.body.hardwareId, users: req.params.id },
+      (err, hardware) => {
+        if (err) return console.log(err.message);
+        if (!hardware)
+          return res.status(404).json({ status: "Hardware not found" });
+        hardware.update(
+          { $pull: { users: req.params.id } },
+          { new: true },
+          (err, result) => {
+            if (err) return console.log(err.message);
+            if (!result)
+              return res.status(404).json({ status: "Hardware not removed" });
+            return res.json({ status: "Hardware removed from your setup" });
+          }
+        );
+      }
+    );
+  }
+});
+
+router.put("/like/:id", async (req, res) => {
+  if (isOwnUser(req, res)) {
+    Hardware.findOne({ _id: req.body.hardwareId }, (err, hardware) => {
+      if (err) return console.log(err.message);
+      if (!hardware)
+        return res.status(404).json({ status: "Hardware not found" });
+      if (hardware.likes.includes(req.params.id)) {
+        hardware.update(
+          {
+            $pull: { dislikes: req.params.id, likes: req.params.id }
+          },
+          { new: true },
+          (err, result) => {
+            if (err) return console.log(err.message);
+            if (!result)
+              return res
+                .status(404)
+                .json({ status: "Like hardware not removed" });
+            return res.json({ status: "Like removed" });
+          }
+        );
+      } else {
+        hardware.update(
+          {
+            $pull: { dislikes: req.params.id },
+            $addToSet: { likes: req.params.id }
+          },
+          { new: true },
+          (err, result) => {
+            if (err) return console.log(err.message);
+            if (!result)
+              return res.status(404).json({ status: "Hardware not liked" });
+            return res.json({ status: "Hardware liked" });
+          }
+        );
+      }
+    });
+  }
+});
+router.put("/dislike/:id", async (req, res) => {
+  if (isOwnUser(req, res)) {
+    Hardware.findOne({ _id: req.body.hardwareId }, (err, hardware) => {
+      if (err) return console.log(err.message);
+      if (!hardware)
+        return res.status(404).json({ status: "Hardware not found" });
+      if (hardware.dislikes.includes(req.params.id)) {
+        hardware.update(
+          {
+            $pull: { likes: req.params.id, dislikes: req.params.id }
+          },
+          { new: true },
+          (err, result) => {
+            if (err) return console.log(err.message);
+            if (!result)
+              return res
+                .status(404)
+                .json({ status: "Dislike hardware not removed" });
+            return res.json({ status: "Dislike removed" });
+          }
+        );
+      } else {
+        hardware.update(
+          {
+            $pull: { likes: req.params.id },
+            $addToSet: { dislikes: req.params.id }
+          },
+          { new: true },
+          (err, result) => {
+            if (err) return console.log(err.message);
+            if (!result)
+              return res.status(404).json({ status: "Hardware not disliked" });
+            return res.json({ status: "Hardware disliked" });
+          }
+        );
+      }
     });
   }
 });

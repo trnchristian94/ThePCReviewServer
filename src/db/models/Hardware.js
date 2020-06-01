@@ -23,7 +23,19 @@ const HardwareSchema = new Schema({
   type: {
     type: String,
     required: true,
-    enum: ["mobo","cpu","hdd","ssd","gpu","ram","optic","soundcard","case","psu","etc"]
+    enum: [
+      "mobo",
+      "cpu",
+      "hdd",
+      "ssd",
+      "gpu",
+      "ram",
+      "optic",
+      "soundcard",
+      "case",
+      "psu",
+      "etc"
+    ]
   },
   price: {
     type: Number,
@@ -34,9 +46,24 @@ const HardwareSchema = new Schema({
       image: String,
       imageId: String
     }
+  ],
+  users: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "User"
+    }
+  ],
+  likes: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "User"
+    }
+  ],
+  dislikes: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "User"
+    }
   ]
 });
-module.exports = Hardware = mongoose.model(
-  "hardware",
-  HardwareSchema
-);
+module.exports = Hardware = mongoose.model("hardware", HardwareSchema);
