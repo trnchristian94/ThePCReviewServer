@@ -5,7 +5,7 @@ const User = require("../models/User");
 
 router.get("/", async (req, res) => {
   await User.find(
-    {},
+    { active: { $ne: false } },
     "name userImage.image userImage.landscape userInfo _id",
     (err, users) => {
       if (err) return next(err);
@@ -15,10 +15,13 @@ router.get("/", async (req, res) => {
 });
 
 router.get("/:id", async (req, res) => {
-  await User.find({}).select("email name _id", (err, users) => {
-    if (err) return next(err);
-    return res.json(users);
-  });
+  await User.find({ active: { $ne: false } }).select(
+    "email name _id",
+    (err, users) => {
+      if (err) return next(err);
+      return res.json(users);
+    }
+  );
 });
 
 module.exports = router;

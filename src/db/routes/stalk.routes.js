@@ -7,7 +7,7 @@ const {
   removeNotification
 } = require("../../utils/notifications");
 
-const { isOwnUser } = require("../../utils/permissions");
+const { isOwnUser, getActiveUsers } = require("../../utils/permissions");
 
 // 1= requested, 2=accepted, 3=rejected
 const REQUESTED = 1;
@@ -30,25 +30,30 @@ router.get("/sent/:id", async (req, res) => {
 
 // Get list of stalk requests received
 router.get("/received/:id/amount", async (req, res) => {
-  if (isOwnUser(req, res))
+  if (isOwnUser(req, res)) {
+    const idActives = await getActiveUsers();
     await Stalk.countDocuments(
       {
         recipient: req.params.id,
-        status: REQUESTED
+        status: REQUESTED,
+        requester: { $in: idActives }
       },
       (err, result) => {
         if (err) console.error(err);
         return res.json(result);
       }
     );
+  }
 });
 
 // Get list of stalk requests received
 router.get("/received/:id", async (req, res) => {
-  if (isOwnUser(req, res))
+  if (isOwnUser(req, res)) {
+    const idActives = await getActiveUsers();
     await Stalk.find(
       {
         recipient: req.params.id,
+        requester: { $in: idActives },
         status: REQUESTED
       },
       (err, requests) => {
@@ -59,7 +64,8 @@ router.get("/received/:id", async (req, res) => {
         }
         User.find(
           {
-            _id: { $in: requesters }
+            _id: { $in: requesters },
+            active: { $ne: false }
           },
           "name userImage.image userImage.landscape userInfo _id",
           (err, users) => {
@@ -69,13 +75,16 @@ router.get("/received/:id", async (req, res) => {
         );
       }
     ).select("requester status -_id");
+  }
 });
 
 // Get amount of users who an user stalks
 router.get("/stalking/:id/amount", async (req, res) => {
+  const idActives = await getActiveUsers();
   await Stalk.countDocuments(
     {
       requester: req.params.id,
+      recipient: { $in: idActives },
       status: ACCEPTED
     },
     (err, result) => {
@@ -87,9 +96,11 @@ router.get("/stalking/:id/amount", async (req, res) => {
 
 // Get list of users who an user stalks
 router.get("/stalking/:id", async (req, res) => {
+  const idActives = await getActiveUsers();
   await Stalk.find(
     {
       requester: req.params.id,
+      recipient: { $in: idActives },
       status: ACCEPTED
     },
     (err, requests) => {
@@ -100,7 +111,8 @@ router.get("/stalking/:id", async (req, res) => {
       }
       User.find(
         {
-          _id: { $in: requesters }
+          _id: { $in: requesters },
+          active: { $ne: false }
         },
         "name userImage.image userImage.landscape userInfo _id",
         (err, users) => {
@@ -114,8 +126,10 @@ router.get("/stalking/:id", async (req, res) => {
 
 // Get amount of users who stalk an user
 router.get("/stalkers/:id/amount", async (req, res) => {
+  const idActives = await getActiveUsers();
   await Stalk.countDocuments(
     {
+      requester: { $in: idActives },
       recipient: req.params.id,
       status: ACCEPTED
     },
@@ -128,8 +142,10 @@ router.get("/stalkers/:id/amount", async (req, res) => {
 
 // Get list of users who stalk an user
 router.get("/stalkers/:id", async (req, res) => {
+  const idActives = await getActiveUsers();
   await Stalk.find(
     {
+      requester: { $in: idActives },
       recipient: req.params.id,
       status: ACCEPTED
     },
@@ -141,7 +157,8 @@ router.get("/stalkers/:id", async (req, res) => {
       }
       User.find(
         {
-          _id: { $in: requesters }
+          _id: { $in: requesters },
+          active: { $ne: false }
         },
         "name userImage.image userImage.landscape userInfo _id",
         (err, users) => {

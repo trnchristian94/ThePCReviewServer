@@ -26,6 +26,10 @@ const UserSchema = new Schema({
     imageId: String,
     landscape: String,
     landscapeId: String
+  },
+  active: {
+    type: Boolean,
+    default: true
   }
 });
 module.exports = User = mongoose.model("users", UserSchema);

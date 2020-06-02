@@ -8,9 +8,51 @@ const {
   uploadNotification,
   removeNotification
 } = require("../../utils/notifications");
-const { isOwnUser } = require("../../utils/permissions");
+const { isOwnUser, getActiveUsers } = require("../../utils/permissions");
 
 const ACCEPTED = 2;
+
+const getPosts = async (query) => {
+  const idActives = await getActiveUsers();
+  const posts = await Post.find({
+    $and: [{ creator: { $in: idActives } }, query]
+  })
+    .sort("-date")
+    .populate("creator", "name userImage.image")
+    .populate(answeredPostSchema);
+  return posts;
+};
+
+const getReposts = async (query) => {
+  const idActives = await getActiveUsers();
+  const reposts = Repost.find({
+    $and: [{ reposter: { $in: idActives } }, query]
+  })
+    .populate("reposter", "name userImage.image")
+    .populate({
+      path: "post",
+      model: "Post",
+      populate: {
+        path: "creator",
+        model: "User",
+        select: "name userImage.image"
+      }
+    })
+    .populate({
+      path: "post",
+      model: "Post",
+      populate: {
+        path: "answeredPost",
+        model: "Post",
+        populate: {
+          path: "creator",
+          model: "User",
+          select: "name userImage.image"
+        }
+      }
+    });
+  return reposts;
+};
 
 router.post(
   "/:id/answer/:postId",
@@ -31,9 +73,7 @@ const doPosting = async (req, res, isAnswer) => {
       });
     }
     req.body.creator = req.params.id;
-    if (isAnswer) {
-      req.body.answeredPost = req.params.postId;
-    }
+    if (isAnswer) req.body.answeredPost = req.params.postId;
     Post.create(req.body, (err, post) => {
       if (err) return res.json(err.message);
       if (req.file) {
@@ -136,51 +176,8 @@ router.delete("/:id", async (req, res) => {
 });
 
 router.get("/", async (req, res) => {
-  await Post.find()
-    .sort("-date")
-    .populate("creator", "name userImage.image")
-    .populate({
-      path: "answeredPost",
-      model: "Post",
-      populate: {
-        path: "creator",
-        model: "User",
-        select: "name userImage.image"
-      }
-    })
-    .exec((err, posts) => {
-      if (err) console.log(err);
-      Repost.find({
-        reposter: req.params.id
-      })
-        .populate("reposter", "name userImage.image")
-        .populate({
-          path: "post",
-          model: "Post",
-          populate: {
-            path: "creator",
-            model: "User",
-            select: "name userImage.image"
-          }
-        })
-        .populate({
-          path: "post",
-          model: "Post",
-          populate: {
-            path: "answeredPost",
-            model: "Post",
-            populate: {
-              path: "creator",
-              model: "User",
-              select: "name userImage.image"
-            }
-          }
-        })
-        .exec((err, reposts) => {
-          if (err) console.log(err);
-          res.json(sortAllPosts(posts, reposts));
-        });
-    });
+  const posts = await getPosts({});
+  res.json(sortAllPosts(posts, []));
 });
 
 router.get("/from/:id/amount", async (req, res) => {
@@ -194,54 +191,14 @@ router.get("/from/:id/amount", async (req, res) => {
     }
   );
 });
+
+
 router.get("/from/:id", async (req, res) => {
-  await Post.find({
-    creator: req.params.id
-  })
-    .sort("-date")
-    .populate("creator", "name userImage.image")
-    .populate({
-      path: "answeredPost",
-      model: "Post",
-      populate: {
-        path: "creator",
-        model: "User",
-        select: "name userImage.image"
-      }
-    })
-    .exec((err, posts) => {
-      if (err) console.log(err);
-      Repost.find({
-        reposter: req.params.id
-      })
-        .populate("reposter", "name userImage.image")
-        .populate({
-          path: "post",
-          model: "Post",
-          populate: {
-            path: "creator",
-            model: "User",
-            select: "name userImage.image"
-          }
-        })
-        .populate({
-          path: "post",
-          model: "Post",
-          populate: {
-            path: "answeredPost",
-            model: "Post",
-            populate: {
-              path: "creator",
-              model: "User",
-              select: "name userImage.image"
-            }
-          }
-        })
-        .exec((err, reposts) => {
-          if (err) console.log(err);
-          res.json(sortAllPosts(posts, reposts));
-        });
-    });
+  const posts = await getPosts({ creator: req.params.id });
+  const reposts = await getReposts({
+    reposter: req.params.id
+  });
+  res.json(sortAllPosts(posts, reposts));
 });
 
 router.get("/fromStalkings/:id", async (req, res) => {
@@ -251,60 +208,18 @@ router.get("/fromStalkings/:id", async (req, res) => {
         requester: req.params.id,
         status: ACCEPTED
       },
-      (err, requests) => {
+      async (err, requests) => {
         if (err) console.error(err);
         let requesters = [];
         requesters.push(req.params.id);
         for (let i = 0; i < requests.length; i++) {
           requesters.push(requests[i].recipient);
         }
-        Post.find({
-          creator: { $in: requesters }
-        })
-          .sort("-date")
-          .populate("creator", "name userImage.image")
-          .populate({
-            path: "answeredPost",
-            model: "Post",
-            populate: {
-              path: "creator",
-              model: "User",
-              select: "name userImage.image"
-            }
-          })
-          .exec((err, posts) => {
-            if (err) console.log(err);
-            Repost.find({
-              reposter: { $in: requesters }
-            })
-              .populate("reposter", "name userImage.image")
-              .populate({
-                path: "post",
-                model: "Post",
-                populate: {
-                  path: "creator",
-                  model: "User",
-                  select: "name userImage.image"
-                }
-              })
-              .populate({
-                path: "post",
-                model: "Post",
-                populate: {
-                  path: "answeredPost",
-                  model: "Post",
-                  populate: {
-                    path: "creator",
-                    model: "User",
-                    select: "name userImage.image"
-                  }
-                }
-              })
-              .exec((err, reposts) => {
-                if (err) console.log(err);
-                res.json(sortAllPosts(posts, reposts));
-              });
-          });
+        const posts = await getPosts({ creator: { $in: requesters } });
+        const reposts = await getReposts({
+          reposter: { $in: requesters }
+        });
+        res.json(sortAllPosts(posts, reposts));
       }
     ).select("recipient status -_id");
   }
@@ -332,15 +247,7 @@ router.put("/like/:id", async (req, res) => {
     }
   )
     .populate("creator", "name userImage.image")
-    .populate({
-      path: "answeredPost",
-      model: "Post",
-      populate: {
-        path: "creator",
-        model: "User",
-        select: "name userImage.image"
-      }
-    });
+    .populate(answeredPostSchema);
 });
 
 // To remove a like from a post
@@ -362,39 +269,25 @@ router.put("/removeLike/:id", async (req, res) => {
     }
   )
     .populate("creator", "name userImage.image")
-    .populate({
-      path: "answeredPost",
-      model: "Post",
-      populate: {
-        path: "creator",
-        model: "User",
-        select: "name userImage.image"
-      }
-    });
+    .populate(answeredPostSchema);
 });
 
 router.get("/likes/:id/amount", async (req, res) => {
-  await Post.countDocuments({ likes: req.params.id }, (err, result) => {
+  const idActives = await getActiveUsers();
+  await Post.countDocuments({ likes: req.params.id, creator: { $in: idActives } }, (err, result) => {
     if (err) console.error(err);
     res.json(result);
   });
 });
 
 router.get("/likes/:id", async (req, res) => {
-  await Post.find({ likes: req.params.id }, (err, result) => {
+  const idActives = await getActiveUsers();
+  await Post.find({ likes: req.params.id,  creator: { $in: idActives } } , (err, result) => {
     if (err) console.error(err);
     res.json(result);
   })
     .populate("creator", "name userImage.image")
-    .populate({
-      path: "answeredPost",
-      model: "Post",
-      populate: {
-        path: "creator",
-        model: "User",
-        select: "name userImage.image"
-      }
-    });
+    .populate(answeredPostSchema);
 });
 
 const sortAllPosts = (posts, reposts) => {
@@ -432,6 +325,16 @@ const checkRepostNull = (repost) => {
         console.log("Deleted reposts: " + response.deletedCount);
       });
     });
+  }
+};
+
+const answeredPostSchema = {
+  path: "answeredPost",
+  model: "Post",
+  populate: {
+    path: "creator",
+    model: "User",
+    select: "name userImage.image"
   }
 };
 

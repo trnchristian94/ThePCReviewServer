@@ -15,14 +15,16 @@ router.get("/:id", async (req, res) => {
 
 router.get("/user/:username", async (req, res) => {
   const user = await User.find({
-    name: req.params.username
+    name: req.params.username,
+    active: { $ne: false }
   }).select("name userImage userInfo");
   res.json(user);
 });
 
 router.get("/getUserId/:username", async (req, res) => {
   const user = await User.find({
-    name: req.params.username
+    name: req.params.username,
+    active: { $ne: false }
   }).select("_id");
   res.json(user);
 });
@@ -36,7 +38,8 @@ router.put("/updateUser/:id", async (req, res) => {
     );
     await User.find(
       {
-        name: { $regex: new RegExp("^" + req.body.name.toLowerCase(), "i") }
+        name: { $regex: new RegExp("^" + req.body.name.toLowerCase(), "i") },
+        active: { $ne: false }
       },
       async (err, response) => {
         if (err) console.error(err);
@@ -46,6 +49,30 @@ router.put("/updateUser/:id", async (req, res) => {
           await User.findByIdAndUpdate(req.params.id, newUserInfo);
           res.json({ status: "User updated" });
         }
+      }
+    );
+  }
+});
+
+router.put("/deactivate/:id", async (req, res) => {
+  if (isOwnUser(req, res)) {
+    await User.findOne(
+      {
+        _id: req.params.id,
+        active: { $ne: false }
+      },
+      async (err, user) => {
+        if (err) console.error(err);
+        if (!user) return res.status(400).json({ status: "User not found" });
+        user.update({ $set: { active: false } }, (err, response) => {
+          if (!response)
+            return res
+              .status(400)
+              .json({ status: "Error, update couldn't be done" });
+          return res.json({
+            status: "User deactivated, to reactivate it please log in again."
+          });
+        });
       }
     );
   }
@@ -63,8 +90,8 @@ router.post("/uploadImage/", imageUtils.upload.single("image"), (req, res) => {
         if (err) {
           req.json(err.message);
         }
-        await User.findByIdAndUpdate(
-          req.body.userId,
+        await User.findOneAndUpdate(
+          { _id: req.body.userId, active: { $ne: false } },
           {
             $set: {
               "userImage.image": result.secure_url,
@@ -95,8 +122,8 @@ router.post(
           if (err) {
             req.json(err.message);
           }
-          await User.findByIdAndUpdate(
-            req.body.userId,
+          await User.findOneAndUpdate(
+            { _id: req.body.userId, active: { $ne: false } },
             {
               $set: {
                 "userImage.landscape": result.secure_url,

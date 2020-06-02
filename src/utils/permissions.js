@@ -9,5 +9,15 @@ const isOwnUser = (req, res) => {
   }
   return true;
 };
+const getActiveUsers = async () => {
+  const activeUsers = await User.find({
+    active: { $ne: false }
+  });
+  const idActives = [];
+  for (let i = 0; i < activeUsers.length; i++) {
+    idActives.push(activeUsers[i].id);
+  }
+  return idActives;
+};
 
-module.exports = { isOwnUser };
+module.exports = { isOwnUser, getActiveUsers };
