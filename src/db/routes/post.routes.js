@@ -114,7 +114,7 @@ router.delete("/:id", async (req, res) => {
           }
         );
       }
-      if(post.reposts){
+      if (post.reposts) {
         Repost.deleteMany({ post: req.body.postId }, (err, response) => {
           if (err) console.log(err);
           console.log("Deleted reposts: " + response.deletedCount);
@@ -137,7 +137,8 @@ router.delete("/:id", async (req, res) => {
 
 router.get("/", async (req, res) => {
   await Post.find()
-    .populate("creator", "name")
+    .sort("-date")
+    .populate("creator", "name userImage.image")
     .populate({
       path: "answeredPost",
       model: "Post",
@@ -147,9 +148,38 @@ router.get("/", async (req, res) => {
         select: "name userImage.image"
       }
     })
-    .exec((err, response) => {
+    .exec((err, posts) => {
       if (err) console.log(err);
-      res.json(response);
+      Repost.find({
+        reposter: req.params.id
+      })
+        .populate("reposter", "name userImage.image")
+        .populate({
+          path: "post",
+          model: "Post",
+          populate: {
+            path: "creator",
+            model: "User",
+            select: "name userImage.image"
+          }
+        })
+        .populate({
+          path: "post",
+          model: "Post",
+          populate: {
+            path: "answeredPost",
+            model: "Post",
+            populate: {
+              path: "creator",
+              model: "User",
+              select: "name userImage.image"
+            }
+          }
+        })
+        .exec((err, reposts) => {
+          if (err) console.log(err);
+          res.json(sortAllPosts(posts, reposts));
+        });
     });
 });
 
