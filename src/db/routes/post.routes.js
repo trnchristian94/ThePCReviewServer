@@ -8,7 +8,7 @@ const {
   uploadNotification,
   removeNotification
 } = require("../../utils/notifications");
-const { isOwnUser, getActiveUsers } = require("../../utils/permissions");
+const { isAdmin, getActiveUsers } = require("../../utils/permissions");
 
 const ACCEPTED = 2;
 
@@ -55,64 +55,62 @@ const getReposts = async (query) => {
 };
 
 router.post(
-  "/:id/answer/:postId",
+  "/answer/:postId",
   imageUtils.upload.single("image"),
   async (req, res) => {
     doPosting(req, res, true);
   }
 );
-router.post("/:id", imageUtils.upload.single("image"), async (req, res) => {
+router.post("/", imageUtils.upload.single("image"), async (req, res) => {
   doPosting(req, res, false);
 });
 
 const doPosting = async (req, res, isAnswer) => {
-  if (isOwnUser(req, res)) {
-    if (req.file && req.file.size > 3500000) {
-      return res.json({
-        error: "Image exceeds max size 3.5MB, please upload another image."
-      });
-    }
-    req.body.creator = req.params.id;
-    if (isAnswer) req.body.answeredPost = req.params.postId;
-    Post.create(req.body, (err, post) => {
-      if (err) return res.json(err.message);
-      if (req.file) {
-        imageUtils.cloudinary.v2.uploader.upload(
-          req.file.path,
-          {
-            folder: "posts/",
-            public_id: post.id
-          },
-          async (err, result) => {
-            if (err) return res.json(err.message);
-            Post.findByIdAndUpdate(
-              post.id,
-              {
-                $set: {
-                  "postImage.image": result.secure_url,
-                  "postImage.imageId": post.id
-                }
-              },
-              (err) => {
-                if (err) return next(err);
-                if (isAnswer) {
-                  addAnswerToPost(req, res, req.params.postId, post.id);
-                } else {
-                  return res.json({ status: "Post with image uploaded!" });
-                }
-              }
-            );
-          }
-        );
-      } else {
-        if (isAnswer) {
-          addAnswerToPost(req, res, req.params.postId, post.id);
-        } else {
-          return res.json({ status: "Post uploaded" });
-        }
-      }
+  if (req.file && req.file.size > 3500000) {
+    return res.json({
+      error: "Image exceeds max size 3.5MB, please upload another image."
     });
   }
+  req.body.creator = req.user.id;
+  if (isAnswer) req.body.answeredPost = req.params.postId;
+  Post.create(req.body, (err, post) => {
+    if (err) return res.json(err.message);
+    if (req.file) {
+      imageUtils.cloudinary.v2.uploader.upload(
+        req.file.path,
+        {
+          folder: "posts/",
+          public_id: post.id
+        },
+        async (err, result) => {
+          if (err) return res.json(err.message);
+          Post.findByIdAndUpdate(
+            post.id,
+            {
+              $set: {
+                "postImage.image": result.secure_url,
+                "postImage.imageId": post.id
+              }
+            },
+            (err) => {
+              if (err) return next(err);
+              if (isAnswer) {
+                addAnswerToPost(req, res, req.params.postId, post.id);
+              } else {
+                return res.json({ status: "Post with image uploaded!" });
+              }
+            }
+          );
+        }
+      );
+    } else {
+      if (isAnswer) {
+        addAnswerToPost(req, res, req.params.postId, post.id);
+      } else {
+        return res.json({ status: "Post uploaded" });
+      }
+    }
+  });
 };
 
 const addAnswerToPost = (req, res, answeredPost, postId) => {
@@ -125,7 +123,7 @@ const addAnswerToPost = (req, res, answeredPost, postId) => {
     (err, result) => {
       if (err) console.error(err);
       uploadNotification(
-        req.params.id,
+        req.user.id,
         result.creator._id,
         postId,
         "Post",
@@ -137,42 +135,42 @@ const addAnswerToPost = (req, res, answeredPost, postId) => {
   );
 };
 
-router.delete("/:id", async (req, res) => {
-  if (isOwnUser(req, res)) {
-    Post.findByIdAndDelete(req.body.postId, (err, post) => {
-      if (err) return res.json(err.message);
-      if (!post) return res.json({ status: "Post not found" });
-      if (post.answeredPost) {
-        // Removes the answers from array of answers
-        Post.findOneAndUpdate(
-          { _id: post.answeredPost._id.toString() },
-          { $pull: { answers: req.body.postId } },
-          { new: true },
-          (err, result) => {
-            if (err) console.error(err);
-            console.log(result);
-          }
-        );
-      }
-      if (post.reposts) {
-        Repost.deleteMany({ post: req.body.postId }, (err, response) => {
-          if (err) console.log(err);
-          console.log("Deleted reposts: " + response.deletedCount);
-        });
-      }
-      if (post.postImage) {
-        imageUtils.cloudinary.v2.uploader.destroy(
-          `posts/${post.postImage.imageId}`,
-          (err, result) => {
-            if (err) console.log(err.message);
-            return res.json({ status: "Post with image deleted" });
-          }
-        );
-      } else {
-        return res.json({ status: "Post deleted" });
-      }
-    });
-  }
+router.delete("/", async (req, res) => {
+  let query = { _id: req.body.postId };
+  if (!isAdmin(req)) query.creator = req.user.id;
+  Post.findOneAndDelete(query, (err, post) => {
+    if (err) return res.json(err.message);
+    if (!post) return res.status(404).json({ status: "Post not found" });
+    if (post.answeredPost) {
+      // Removes the answers from array of answers
+      Post.findOneAndUpdate(
+        { _id: post.answeredPost._id.toString() },
+        { $pull: { answers: req.body.postId } },
+        { new: true },
+        (err, result) => {
+          if (err) console.error(err);
+          console.log(result);
+        }
+      );
+    }
+    if (post.reposts) {
+      Repost.deleteMany({ post: req.body.postId }, (err, response) => {
+        if (err) console.log(err);
+        console.log("Deleted reposts: " + response.deletedCount);
+      });
+    }
+    if (post.postImage && post.postImage.imageId) {
+      imageUtils.cloudinary.v2.uploader.destroy(
+        `posts/${post.postImage.imageId}`,
+        (err, result) => {
+          if (err) console.log(err.message);
+          return res.json({ status: "Post with image deleted" });
+        }
+      );
+    } else {
+      return res.json({ status: "Post deleted" });
+    }
+  });
 });
 
 router.get("/", async (req, res) => {
@@ -192,7 +190,6 @@ router.get("/from/:id/amount", async (req, res) => {
   );
 });
 
-
 router.get("/from/:id", async (req, res) => {
   const posts = await getPosts({ creator: req.params.id });
   const reposts = await getReposts({
@@ -202,27 +199,25 @@ router.get("/from/:id", async (req, res) => {
 });
 
 router.get("/fromStalkings/:id", async (req, res) => {
-  if (isOwnUser(req, res)) {
-    await Stalk.find(
-      {
-        requester: req.params.id,
-        status: ACCEPTED
-      },
-      async (err, requests) => {
-        if (err) console.error(err);
-        let requesters = [];
-        requesters.push(req.params.id);
-        for (let i = 0; i < requests.length; i++) {
-          requesters.push(requests[i].recipient);
-        }
-        const posts = await getPosts({ creator: { $in: requesters } });
-        const reposts = await getReposts({
-          reposter: { $in: requesters }
-        });
-        res.json(sortAllPosts(posts, reposts));
+  await Stalk.find(
+    {
+      requester: req.params.id,
+      status: ACCEPTED
+    },
+    async (err, requests) => {
+      if (err) console.error(err);
+      let requesters = [];
+      requesters.push(req.params.id);
+      for (let i = 0; i < requests.length; i++) {
+        requesters.push(requests[i].recipient);
       }
-    ).select("recipient status -_id");
-  }
+      const posts = await getPosts({ creator: { $in: requesters } });
+      const reposts = await getReposts({
+        reposter: { $in: requesters }
+      });
+      res.json(sortAllPosts(posts, reposts));
+    }
+  ).select("recipient status -_id");
 });
 
 // To add a like to a post
@@ -274,18 +269,24 @@ router.put("/removeLike/:id", async (req, res) => {
 
 router.get("/likes/:id/amount", async (req, res) => {
   const idActives = await getActiveUsers();
-  await Post.countDocuments({ likes: req.params.id, creator: { $in: idActives } }, (err, result) => {
-    if (err) console.error(err);
-    res.json(result);
-  });
+  await Post.countDocuments(
+    { likes: req.params.id, creator: { $in: idActives } },
+    (err, result) => {
+      if (err) console.error(err);
+      res.json(result);
+    }
+  );
 });
 
 router.get("/likes/:id", async (req, res) => {
   const idActives = await getActiveUsers();
-  await Post.find({ likes: req.params.id,  creator: { $in: idActives } } , (err, result) => {
-    if (err) console.error(err);
-    res.json(result);
-  })
+  await Post.find(
+    { likes: req.params.id, creator: { $in: idActives } },
+    (err, result) => {
+      if (err) console.error(err);
+      res.json(result);
+    }
+  )
     .populate("creator", "name userImage.image")
     .populate(answeredPostSchema);
 });

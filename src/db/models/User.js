@@ -30,6 +30,15 @@ const UserSchema = new Schema({
   active: {
     type: Boolean,
     default: true
-  }
+  },
+  permission: {
+    type: String,
+    required: true,
+    default: "user",
+    enum: [
+      "user",
+      "admin"
+    ]
+  },
 });
 module.exports = User = mongoose.model("users", UserSchema);

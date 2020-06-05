@@ -7,19 +7,18 @@ const {
   removeNotification
 } = require("../../utils/notifications");
 
-const { isOwnUser, getActiveUsers } = require("../../utils/permissions");
+const { getActiveUsers } = require("../../utils/permissions");
 
 // 1= requested, 2=accepted, 3=rejected
 const REQUESTED = 1;
 const ACCEPTED = 2;
 const DENIED = 3;
 
-// Get user stalk requests sent
-router.get("/sent/:id", async (req, res) => {
-  if (isOwnUser(req, res))
+// Get user stalk requests sent and their status
+router.get("/sent", async (req, res) => {
     await Stalk.find(
       {
-        requester: req.params.id
+        requester: req.user.id
       },
       (err, requests) => {
         if (err) console.error(err);
@@ -30,7 +29,6 @@ router.get("/sent/:id", async (req, res) => {
 
 // Get list of stalk requests received
 router.get("/received/:id/amount", async (req, res) => {
-  if (isOwnUser(req, res)) {
     const idActives = await getActiveUsers();
     await Stalk.countDocuments(
       {
@@ -43,12 +41,10 @@ router.get("/received/:id/amount", async (req, res) => {
         return res.json(result);
       }
     );
-  }
 });
 
 // Get list of stalk requests received
 router.get("/received/:id", async (req, res) => {
-  if (isOwnUser(req, res)) {
     const idActives = await getActiveUsers();
     await Stalk.find(
       {
@@ -75,7 +71,6 @@ router.get("/received/:id", async (req, res) => {
         );
       }
     ).select("requester status -_id");
-  }
 });
 
 // Get amount of users who an user stalks
@@ -170,11 +165,10 @@ router.get("/stalkers/:id", async (req, res) => {
   ).select("requester status -_id");
 });
 
-router.delete("/cancel/:id", async (req, res) => {
-  if (isOwnUser(req, res))
+router.delete("/cancel", async (req, res) => {
     await Stalk.findOneAndRemove(
       {
-        requester: req.params.id,
+        requester: req.user.id,
         recipient: req.body.recipient
       },
       (err, response) => {
@@ -182,12 +176,12 @@ router.delete("/cancel/:id", async (req, res) => {
         if (response) {
           removeNotification(
             req.body.recipient,
-            req.params.id,
+            req.user.id,
             response.id,
             "STALK_ACCEPTED"
           );
           removeNotification(
-            req.params.id,
+            req.user.id,
             req.body.recipient,
             response.id,
             "STALKING"
@@ -201,8 +195,7 @@ router.delete("/cancel/:id", async (req, res) => {
 });
 
 // Accept, deny, cancel actions for a stalk request
-router.put("/:action/:id", async (req, res) => {
-  if (isOwnUser(req, res)) {
+router.put("/:action", async (req, res) => {
     let status = 0;
     let jsonStatus = "";
     if (req.params.action === "accept") {
@@ -217,7 +210,7 @@ router.put("/:action/:id", async (req, res) => {
     Stalk.findOneAndUpdate(
       {
         requester: req.body.requester,
-        recipient: req.params.id,
+        recipient: req.user.id,
         status: REQUESTED
       },
       { status: status },
@@ -226,7 +219,7 @@ router.put("/:action/:id", async (req, res) => {
         if (stalkReq) {
           if (status === ACCEPTED) {
             uploadNotification(
-              req.params.id,
+              req.user.id,
               req.body.requester,
               stalkReq.id,
               "Stalk",
@@ -235,7 +228,7 @@ router.put("/:action/:id", async (req, res) => {
             );
             uploadNotification(
               req.body.requester,
-              req.params.id,
+              req.user.id,
               stalkReq.id,
               "Stalk",
               "STALKING",
@@ -248,15 +241,13 @@ router.put("/:action/:id", async (req, res) => {
         }
       }
     );
-  }
 });
 
-router.post("/:id", async (req, res) => {
-  if (isOwnUser(req, res)) {
+router.post("/", async (req, res) => {
     // Record stalk
     await Stalk.find(
       {
-        requester: req.params.id,
+        requester: req.user.id,
         recipient: req.body.recipient,
         status: REQUESTED
       },
@@ -264,7 +255,7 @@ router.post("/:id", async (req, res) => {
         if (err) console.error(err);
         if (requests.length === 0) {
           const stalk = new Stalk({
-            requester: req.params.id,
+            requester: req.user.id,
             recipient: req.body.recipient,
             status: REQUESTED
           });
@@ -278,7 +269,6 @@ router.post("/:id", async (req, res) => {
         }
       }
     );
-  }
 });
 
 module.exports = router;
