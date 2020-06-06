@@ -93,7 +93,15 @@ router.get("/:id", async (req, res) => {
       res.json(response);
     });
 });
-
+router.get("/:id/users", async (req, res) => {
+  await Hardware.findById(req.params.id)
+    .sort("-date")
+    .populate("users", "name description userInfo.bio userImage.image")
+    .exec((err, response) => {
+      if (err) console.log(err);
+      res.json(response.users);
+    });
+});
 router.delete("/", async (req, res) => {
   let query = { _id: req.body.hardwareId };
   if (!isAdmin(req, res)) query.creator = req.user.id;
@@ -215,100 +223,100 @@ router.get("/lookForSetup/:id", async (req, res) => {
 });
 
 router.put("/removeFromSetup", async (req, res) => {
-    Hardware.findOne(
-      { _id: req.body.hardwareId, users: req.user.id },
-      (err, hardware) => {
-        if (err) return console.log(err.message);
-        if (!hardware)
-          return res.status(404).json({ status: "Hardware not found" });
-        hardware.update(
-          { $pull: { users: req.user.id } },
-          { new: true },
-          (err, result) => {
-            if (err) return console.log(err.message);
-            if (!result)
-              return res.status(404).json({ status: "Hardware not removed" });
-            return res.json({ status: "Hardware removed from your setup" });
-          }
-        );
-      }
-    );
+  Hardware.findOne(
+    { _id: req.body.hardwareId, users: req.user.id },
+    (err, hardware) => {
+      if (err) return console.log(err.message);
+      if (!hardware)
+        return res.status(404).json({ status: "Hardware not found" });
+      hardware.update(
+        { $pull: { users: req.user.id } },
+        { new: true },
+        (err, result) => {
+          if (err) return console.log(err.message);
+          if (!result)
+            return res.status(404).json({ status: "Hardware not removed" });
+          return res.json({ status: "Hardware removed from your setup" });
+        }
+      );
+    }
+  );
 });
 
 router.put("/like", async (req, res) => {
-    Hardware.findOne({ _id: req.body.hardwareId }, (err, hardware) => {
-      if (err) return console.log(err.message);
-      if (!hardware)
-        return res.status(404).json({ status: "Hardware not found" });
-      if (hardware.likes.includes(req.user.id)) {
-        hardware.update(
-          {
-            $pull: { dislikes: req.user.id, likes: req.user.id }
-          },
-          { new: true },
-          (err, result) => {
-            if (err) return console.log(err.message);
-            if (!result)
-              return res
-                .status(404)
-                .json({ status: "Like hardware not removed" });
-            return res.json({ status: "Like removed" });
-          }
-        );
-      } else {
-        hardware.update(
-          {
-            $pull: { dislikes: req.user.id },
-            $addToSet: { likes: req.user.id }
-          },
-          { new: true },
-          (err, result) => {
-            if (err) return console.log(err.message);
-            if (!result)
-              return res.status(404).json({ status: "Hardware not liked" });
-            return res.json({ status: "Hardware liked" });
-          }
-        );
-      }
-    });
+  Hardware.findOne({ _id: req.body.hardwareId }, (err, hardware) => {
+    if (err) return console.log(err.message);
+    if (!hardware)
+      return res.status(404).json({ status: "Hardware not found" });
+    if (hardware.likes.includes(req.user.id)) {
+      hardware.update(
+        {
+          $pull: { dislikes: req.user.id, likes: req.user.id }
+        },
+        { new: true },
+        (err, result) => {
+          if (err) return console.log(err.message);
+          if (!result)
+            return res
+              .status(404)
+              .json({ status: "Like hardware not removed" });
+          return res.json({ status: "Like removed" });
+        }
+      );
+    } else {
+      hardware.update(
+        {
+          $pull: { dislikes: req.user.id },
+          $addToSet: { likes: req.user.id }
+        },
+        { new: true },
+        (err, result) => {
+          if (err) return console.log(err.message);
+          if (!result)
+            return res.status(404).json({ status: "Hardware not liked" });
+          return res.json({ status: "Hardware liked" });
+        }
+      );
+    }
+  });
 });
 
 router.put("/dislike", async (req, res) => {
-    Hardware.findOne({ _id: req.body.hardwareId }, (err, hardware) => {
-      if (err) return console.log(err.message);
-      if (!hardware)
-        return res.status(404).json({ status: "Hardware not found" });
-      if (hardware.dislikes.includes(req.user.id)) {
-        hardware.update(
-          {
-            $pull: { likes: req.user.id, dislikes: req.user.id }
-          },
-          { new: true },
-          (err, result) => {
-            if (err) return console.log(err.message);
-            if (!result)
-              return res
-                .status(404)
-                .json({ status: "Dislike hardware not removed" });
-            return res.json({ status: "Dislike removed" });
-          }
-        );
-      } else {
-        hardware.update(
-          {
-            $pull: { likes: req.user.id },
-            $addToSet: { dislikes: req.user.id }
-          },
-          { new: true },
-          (err, result) => {
-            if (err) return console.log(err.message);
-            if (!result)
-              return res.status(404).json({ status: "Hardware not disliked" });
-            return res.json({ status: "Hardware disliked" });
-          }
-        );
-      }
-    });
+  Hardware.findOne({ _id: req.body.hardwareId }, (err, hardware) => {
+    if (err) return console.log(err.message);
+    if (!hardware)
+      return res.status(404).json({ status: "Hardware not found" });
+    if (hardware.dislikes.includes(req.user.id)) {
+      hardware.update(
+        {
+          $pull: { likes: req.user.id, dislikes: req.user.id }
+        },
+        { new: true },
+        (err, result) => {
+          if (err) return console.log(err.message);
+          if (!result)
+            return res
+              .status(404)
+              .json({ status: "Dislike hardware not removed" });
+          return res.json({ status: "Dislike removed" });
+        }
+      );
+    } else {
+      hardware.update(
+        {
+          $pull: { likes: req.user.id },
+          $addToSet: { dislikes: req.user.id }
+        },
+        { new: true },
+        (err, result) => {
+          if (err) return console.log(err.message);
+          if (!result)
+            return res.status(404).json({ status: "Hardware not disliked" });
+          return res.json({ status: "Hardware disliked" });
+        }
+      );
+    }
+  });
 });
 
 module.exports = router;
