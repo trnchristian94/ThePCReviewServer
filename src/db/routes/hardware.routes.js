@@ -86,13 +86,15 @@ router.get("/", async (req, res) => {
 
 router.get("/:id", async (req, res) => {
   await Hardware.findById(req.params.id)
-    .sort("-date")
     .populate("creator", "name userImage.image")
+    .populate("reviews.user", "name userImage.image")
     .exec((err, response) => {
       if (err) console.log(err);
+      console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
       res.json(response);
     });
 });
+
 router.get("/:id/users", async (req, res) => {
   await Hardware.findById(req.params.id)
     .sort("-date")
@@ -316,6 +318,71 @@ router.put("/dislike", async (req, res) => {
         }
       );
     }
+  });
+});
+
+// Reviews
+router.post("/review/:id", async (req, res) => {
+  if (req.body.reviewRate < 0 || req.body.reviewRate > 10)
+    return res.status(400).json({
+      status: "Max review rate is 10, and minimum is 0"
+    });
+  if (req.body.review.length < 20)
+    return res.status(400).json({
+      status: "Minimum review length is 20 characters"
+    });
+  Hardware.findOne({ _id: req.params.id }, async (err, hardware) => {
+    if (err) return console.log(err.message);
+    if (!hardware)
+      return res.status(404).json({ status: "Hardware not found" });
+    if (
+      hardware.reviews.length > 0 &&
+      hardware.reviews.find((h) => h.user === req.user.id) !== undefined
+    ) {
+      return res
+        .status(400)
+        .json({ status: "Only one review per user is allowed" });
+    } else {
+      Hardware.findOneAndUpdate(
+        { _id: req.params.id },
+        {
+          $addToSet: {
+            reviews: {
+              user: req.user.id,
+              review: req.body.review,
+              reviewRate: req.body.reviewRate
+            }
+          }
+        },
+        { new: true },
+        (err, result) => {
+          if (err) return console.log(err.message);
+          if (!result)
+            return res.status(404).json({ status: "Hardware not reviewed" });
+          return res.json({ result, status: "Review submitted" });
+        }
+      );
+    }
+  });
+});
+
+router.delete("/review/:hardwareId", async (req, res) => {
+  const userId = req.body.userId;
+  if (userId !== req.user.id && !isAdmin(req, res))
+    return res
+      .status(400)
+      .json({ status: "User must be the owner of the review." });
+  Hardware.findOne({ _id: req.params.hardwareId }, (err, hardware) => {
+    if (err) return res.json(err.message);
+    if (!hardware) return res.status(404).json({ status: "Review not found" });
+    hardware.update(
+      { $pull: { reviews: { user: userId } } },
+      { safe: true, multi: true },
+      (err) => {
+        if (err) return console.log(err);
+        return res.json({ status: "Review deleted" });
+      }
+    );
   });
 });
 

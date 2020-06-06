@@ -47,6 +47,27 @@ const HardwareSchema = new Schema({
       imageId: String
     }
   ],
+  reviews: [
+    {
+      user: {
+        type: String,
+        ref: "User",
+        required: true
+      },
+      review: {
+        type: String,
+        required: true
+      },
+      reviewRate: {
+        type: Number,
+        required: true
+      },
+      date: {
+        type: Date,
+        default: Date.now
+      }
+    }
+  ],
   users: [
     {
       type: Schema.Types.ObjectId,
