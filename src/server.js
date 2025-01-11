@@ -13,7 +13,6 @@ const posts = require("./db/routes/post.routes");
 const notifications = require("./db/routes/notification.routes");
 const repost = require("./db/routes/repost.routes");
 const hardware = require("./db/routes/hardware.routes");
-const keys = require("./db/config/keys");
 
 const app = express();
 
@@ -73,7 +72,7 @@ app.use(express.static(path.join(__dirname, "public/")));
 
 // Connect to MongoDB
 mongoose
-  .connect(process.env.mongoURI || keys.mongoURI, {
+  .connect(process.env.mongoURI, {
     useUnifiedTopology: true,
     useNewUrlParser: true
   })

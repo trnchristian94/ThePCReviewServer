@@ -1,5 +1,4 @@
 //IMAGE UPLOAD CONFIGURATION
-const keys = require("../db/config/keys");
 const cloudinary = require("cloudinary");
 const multer = require("multer");
 const storage = multer.diskStorage({
@@ -9,8 +8,8 @@ const storage = multer.diskStorage({
 });
 cloudinary.config({
   cloud_name: "dz6ogknjd",
-  api_key: process.env.CLOUDINARY_API_KEY || keys.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET || keys.CLOUDINARY_API_SECRET
+  api_key: process.env.CLOUDINARY_API_KEY ,
+  api_secret: process.env.CLOUDINARY_API_SECRET
 });
 const imageFilter = (req, file, cb) => {
   // accept image files only
